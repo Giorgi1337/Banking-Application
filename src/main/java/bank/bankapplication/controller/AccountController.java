@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -38,5 +39,24 @@ public class AccountController {
                 account.getAccountHolderName(),
                 account.getBalance());
         return "redirect:/accounts";
+    }
+
+    @GetMapping("/deposit")
+    public String showDepositForm(Model model) {
+        return "deposit";
+    }
+
+    @PostMapping("/deposit")
+    public String deposit(
+            @RequestParam String accountNumber,
+            @RequestParam double amount,
+            Model model) {
+        try {
+            double balance = accountService.deposit(accountNumber, amount);
+            model.addAttribute("message", "Deposit successful. New balance: " + balance);
+        }catch (RuntimeException e) {
+            model.addAttribute("message", "Error: " + e.getMessage());
+        }
+        return "depResult";
     }
 }
