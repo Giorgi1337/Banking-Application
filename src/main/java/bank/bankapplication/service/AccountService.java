@@ -4,6 +4,8 @@ import bank.bankapplication.model.Account;
 import bank.bankapplication.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,5 +35,21 @@ public class AccountService {
         return account.getBalance();
     }
 
+    public double withdraw(String accountNumber, double amount) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        if (account.getBalance() - amount < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+        account.setBalance(account.getBalance() - amount);
+        accountRepository.save(account);
+        return account.getBalance();
+    }
+
+    public double checkBalance(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        return account.getBalance();
+    }
 
 }

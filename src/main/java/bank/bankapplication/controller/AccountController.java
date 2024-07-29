@@ -59,4 +59,35 @@ public class AccountController {
         }
         return "depResult";
     }
+
+    @GetMapping("/withdraw")
+    public String showWithdrawForm() {
+        return "withdraw";
+    }
+
+    @PostMapping("/withdraw")
+    public String withdraw(
+            @RequestParam String accountNumber,
+            @RequestParam double amount,
+            Model model) {
+        try {
+            double balance = accountService.withdraw(accountNumber, amount);
+            model.addAttribute("message", "Withdraw successful. New balance: " + balance);
+        }catch (RuntimeException e) {
+            model.addAttribute("message", "Error: " + e.getMessage());
+        }
+        return "withdrawResult";
+    }
+
+    @GetMapping("/balance")
+    public String showBalanceForm() {
+        return "checkBalance";
+    }
+
+    @PostMapping("/balance")
+    public String checkBalance(@RequestParam String accountNumber, Model model) {
+        double balance = accountService.checkBalance(accountNumber);
+        model.addAttribute("message", "Current balance: " + balance);
+        return "balanceResult";
+    }
 }
