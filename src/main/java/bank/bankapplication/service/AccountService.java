@@ -4,10 +4,9 @@ import bank.bankapplication.model.Account;
 import bank.bankapplication.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,14 +19,20 @@ public class AccountService {
     }
 
     public Account createAccount(String accountNumber, String accountHolderName, double initialDeposit) {
+        if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
+            throw new RuntimeException("Account with the same account number already exists.");
+        }
         Account account = new Account();
-        account.setAccountNumber(accountNumber);
         account.setAccountHolderName(accountHolderName);
+        account.setAccountNumber(accountNumber);
         account.setBalance(initialDeposit);
         return accountRepository.save(account);
     }
 
     public double deposit(String accountNumber, double amount) {
+        if (amount <= 0) {
+            throw new RuntimeException("Deposit amount must be a positive number");
+        }
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         account.setBalance(account.getBalance() + amount);
@@ -36,6 +41,9 @@ public class AccountService {
     }
 
     public double withdraw(String accountNumber, double amount) {
+        if (amount <= 0) {
+            throw new RuntimeException("Withdrawal amount must be a positive number");
+        }
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         if (account.getBalance() - amount < 0) {
@@ -46,6 +54,24 @@ public class AccountService {
         return account.getBalance();
     }
 
+    public Optional<Account> findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber);
+    }
+
+    public Account updateAccount(Account updatedAccount) {
+        Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
+//        existingAccount.setBalance(updatedAccount.getBalance());
+        return accountRepository.save(existingAccount);
+    }
+
+    public void deleteAccount(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        accountRepository.delete(account);
+    }
+
     public double checkBalance(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -53,8 +79,23 @@ public class AccountService {
     }
 
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
-        withdraw(fromAccountNumber, amount);
-        deposit(toAccountNumber, amount);
+        if (amount <= 0) {
+            throw new RuntimeException("Transfer amount must be a positive number");
+        }
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
+                        .orElseThrow(() -> new RuntimeException("Source account not found"));
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
+                        .orElseThrow(() -> new RuntimeException("Destination account not found"));
+
+        if (fromAccount.getBalance() - amount < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance() - amount);
+        toAccount.setBalance(toAccount.getBalance() + amount);
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
     }
 
 }

@@ -8,12 +8,16 @@
 <body>
 <div class="container mt-5">
     <h2>All Accounts</h2>
+    <div class="mb-3">
+        <a href="/create" class="btn btn-primary">Create New Account</a>
+    </div>
     <table class="table table-striped">
         <thead>
         <tr>
             <th>Account Number</th>
             <th>Account Holder Name</th>
             <th>Balance</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -21,6 +25,12 @@
             <td th:text="${account.accountNumber}"></td>
             <td th:text="${account.accountHolderName}"></td>
             <td th:text="${account.balance}"></td>
+            <td>
+                <a th:href="@{'/update/' + ${account.accountNumber}}" class="btn btn-warning">Update</a>
+                <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger">Delete</a>
+                <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary">Transfer</a>
+                <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success">Deposit</a>
+            </td>
         </tr>
         </tbody>
     </table>

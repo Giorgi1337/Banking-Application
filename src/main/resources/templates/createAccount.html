@@ -8,6 +8,9 @@
 <body>
 <div class="container mt-5">
     <h2>Create Account</h2>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
     <form th:action="@{/create}" th:object="${account}" method="post">
         <div class="form-group">
             <label for="accountHolderName">Account Holder Name</label>

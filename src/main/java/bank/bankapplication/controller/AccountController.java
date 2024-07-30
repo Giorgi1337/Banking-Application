@@ -6,12 +6,11 @@ import bank.bankapplication.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -34,15 +33,56 @@ public class AccountController {
 
     @PostMapping("/create")
     public String createAccount(@ModelAttribute Account account, Model model) {
-        accountService.createAccount(
-                account.getAccountNumber(),
-                account.getAccountHolderName(),
-                account.getBalance());
+        try {
+            accountService.createAccount(
+                    account.getAccountNumber(),
+                    account.getAccountHolderName(),
+                    account.getBalance());
+            return "redirect:/accounts";
+        } catch (RuntimeException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "createAccount";
+        }
+    }
+
+    @GetMapping("/update/{accountNumber}")
+    public String showUpdateForm(@PathVariable String accountNumber, Model model) {
+        Account account = accountService.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        model.addAttribute("account", account);
+        return "updateAccount";
+    }
+
+    @PostMapping("/update")
+    public String updateAccount(@ModelAttribute Account account, Model model) {
+       try {
+           accountService.updateAccount(account);
+           model.addAttribute("message", "Account updated successfully");
+       }catch(RuntimeException e) {
+           model.addAttribute("message", "Error: " + e.getMessage());
+       }
+       return "redirect:/accounts";
+    }
+
+    @GetMapping("/delete/{accountNumber}")
+    public String deleteAccount(@PathVariable String accountNumber, Model model) {
+        try {
+            accountService.deleteAccount(accountNumber);
+        } catch (RuntimeException e) {
+            model.addAttribute("message", "Error: " + e.getMessage());
+        }
         return "redirect:/accounts";
     }
 
-    @GetMapping("/deposit")
-    public String showDepositForm(Model model) {
+    @ExceptionHandler(RuntimeException.class)
+    public String handleRuntimeException(RuntimeException e, Model model) {
+        model.addAttribute("errorMessage", e.getMessage());
+        return "error";
+    }
+
+    @GetMapping("/deposit/{accountNumber}")
+    public String showDepositForm(@PathVariable String accountNumber, Model model) {
+        model.addAttribute("accountNumber", accountNumber);
         return "deposit";
     }
 
@@ -54,10 +94,12 @@ public class AccountController {
         try {
             double balance = accountService.deposit(accountNumber, amount);
             model.addAttribute("message", "Deposit successful. New balance: " + balance);
+            return "depResult";
         }catch (RuntimeException e) {
-            model.addAttribute("message", "Error: " + e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("accountNumber", accountNumber);
+            return "deposit";
         }
-        return "depResult";
     }
 
     @GetMapping("/withdraw")
@@ -91,8 +133,9 @@ public class AccountController {
         return "balanceResult";
     }
 
-    @GetMapping("/transfer")
-    public String showTransferForm() {
+    @GetMapping("/transfer/{accountNumber}")
+    public String showTransferForm(@PathVariable String accountNumber, Model model) {
+        model.addAttribute("fromAccountNumber", accountNumber);
         return "transfer";
     }
 
@@ -104,9 +147,11 @@ public class AccountController {
         try {
             accountService.transfer(fromAccountNumber, toAccountNumber, amount);
             model.addAttribute("message", "Transfer successful");
+            return "transferResult";
         } catch (RuntimeException e) {
-            model.addAttribute("message", "Error: " + e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("fromAccountNumber", fromAccountNumber);
+            return "transfer";
         }
-        return "transferResult";
     }
 }

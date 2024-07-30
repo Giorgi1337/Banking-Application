@@ -8,10 +8,13 @@
 <body>
 <div class="container mt-5">
   <h2>Transfer Money</h2>
+  <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+    <p th:text="${errorMessage}"></p>
+  </div>
   <form th:action="@{/transfer}" method="post">
     <div class="form-group">
       <label for="fromAccountNumber">From Account Number</label>
-      <input type="text" class="form-control" id="fromAccountNumber" name="fromAccountNumber" required>
+      <input type="text" class="form-control" id="fromAccountNumber" name="fromAccountNumber" th:value="${fromAccountNumber}" readonly>
     </div>
     <div class="form-group">
       <label for="toAccountNumber">To Account Number</label>
@@ -19,7 +22,7 @@
     </div>
     <div class="form-group">
       <label for="amount">Amount</label>
-      <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+      <input type="number" step="0.01" class="form-control" id="amount" name="amount" min="0.01" required>
     </div>
     <button type="submit" class="btn btn-primary mt-2">Transfer</button>
   </form>
