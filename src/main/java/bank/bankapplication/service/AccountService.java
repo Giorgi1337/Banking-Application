@@ -52,4 +52,9 @@ public class AccountService {
         return account.getBalance();
     }
 
+    public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
+        withdraw(fromAccountNumber, amount);
+        deposit(toAccountNumber, amount);
+    }
+
 }

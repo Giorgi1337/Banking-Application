@@ -90,4 +90,23 @@ public class AccountController {
         model.addAttribute("message", "Current balance: " + balance);
         return "balanceResult";
     }
+
+    @GetMapping("/transfer")
+    public String showTransferForm() {
+        return "transfer";
+    }
+
+    @PostMapping("/transfer")
+    public String transfer(
+            @RequestParam String fromAccountNumber,
+            @RequestParam String toAccountNumber,
+            @RequestParam double amount, Model model) {
+        try {
+            accountService.transfer(fromAccountNumber, toAccountNumber, amount);
+            model.addAttribute("message", "Transfer successful");
+        } catch (RuntimeException e) {
+            model.addAttribute("message", "Error: " + e.getMessage());
+        }
+        return "transferResult";
+    }
 }
