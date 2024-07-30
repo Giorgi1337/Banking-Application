@@ -30,6 +30,8 @@
                 <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger">Delete</a>
                 <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary">Transfer</a>
                 <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success">Deposit</a>
+                <a th:href="@{'/withdraw/' + ${account.accountNumber}}" class="btn btn-dark">Withdraw</a>
+                <a th:href="@{'/withdrawals/' + ${account.accountNumber}}" class="btn btn-info">View Withdrawals</a>
             </td>
         </tr>
         </tbody>

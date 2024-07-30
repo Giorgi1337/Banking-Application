@@ -102,8 +102,9 @@ public class AccountController {
         }
     }
 
-    @GetMapping("/withdraw")
-    public String showWithdrawForm() {
+    @GetMapping("/withdraw/{accountNumber}")
+    public String showWithdrawForm(@PathVariable String accountNumber, Model model) {
+        model.addAttribute("accountNumber", accountNumber);
         return "withdraw";
     }
 
@@ -115,10 +116,12 @@ public class AccountController {
         try {
             double balance = accountService.withdraw(accountNumber, amount);
             model.addAttribute("message", "Withdraw successful. New balance: " + balance);
+            return "withdrawResult";
         }catch (RuntimeException e) {
             model.addAttribute("message", "Error: " + e.getMessage());
+            model.addAttribute("accountNumber", accountNumber);
+            return "error";
         }
-        return "withdrawResult";
     }
 
     @GetMapping("/balance")
