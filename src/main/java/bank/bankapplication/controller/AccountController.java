@@ -1,6 +1,7 @@
 package bank.bankapplication.controller;
 
 import bank.bankapplication.model.Account;
+import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
 import lombok.RequiredArgsConstructor;

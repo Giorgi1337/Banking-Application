@@ -1,7 +1,9 @@
 package bank.bankapplication.service;
 
 import bank.bankapplication.model.Account;
+import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.repository.AccountRepository;
+import bank.bankapplication.repository.WithdrawalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.Optional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+
+    private final WithdrawalRepository withdrawalRepository;
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
@@ -51,6 +55,14 @@ public class AccountService {
         }
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
+
+        // Save withdrawal history
+        Withdrawal withdrawal = new Withdrawal();
+        withdrawal.setAccountNumber(accountNumber);
+        withdrawal.setAmount(amount);
+        withdrawalRepository.save(withdrawal);
+
+
         return account.getBalance();
     }
 
@@ -62,7 +74,6 @@ public class AccountService {
         Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
-//        existingAccount.setBalance(updatedAccount.getBalance());
         return accountRepository.save(existingAccount);
     }
 
