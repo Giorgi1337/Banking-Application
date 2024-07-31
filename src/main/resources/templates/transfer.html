@@ -14,11 +14,13 @@
   <form th:action="@{/transfer}" method="post">
     <div class="form-group">
       <label for="fromAccountNumber">From Account Number</label>
-      <input type="text" class="form-control" id="fromAccountNumber" name="fromAccountNumber" th:value="${fromAccountNumber}" readonly>
+      <input type="text" class="form-control" id="fromAccountNumber" name="fromAccountNumber" th:value="${accountNumber}" readonly>
     </div>
     <div class="form-group">
       <label for="toAccountNumber">To Account Number</label>
-      <input type="text" class="form-control" id="toAccountNumber" name="toAccountNumber" required>
+      <select class="form-control" id="toAccountNumber" name="toAccountNumber" required>
+        <option th:each="account : ${accounts}" th:value="${account.accountNumber}" th:text="${account.accountNumber}"></option>
+      </select>
     </div>
     <div class="form-group">
       <label for="amount">Amount</label>

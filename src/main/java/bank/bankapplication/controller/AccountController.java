@@ -139,7 +139,10 @@ public class AccountController {
 
     @GetMapping("/transfer/{accountNumber}")
     public String showTransferForm(@PathVariable String accountNumber, Model model) {
-        model.addAttribute("fromAccountNumber", accountNumber);
+        List<Account> accounts = accountService.getAllAccounts();
+        accounts.removeIf(account -> account.getAccountNumber().equals(accountNumber));
+        model.addAttribute("accountNumber", accountNumber);
+        model.addAttribute("accounts", accounts);
         return "transfer";
     }
 
@@ -154,7 +157,10 @@ public class AccountController {
             return "transferResult";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("fromAccountNumber", fromAccountNumber);
+            List<Account> accounts = accountService.getAllAccounts();
+            accounts.removeIf(account -> account.getAccountNumber().equals(fromAccountNumber));
+            model.addAttribute("accountNumber", fromAccountNumber);
+            model.addAttribute("accounts", accounts);
             return "transfer";
         }
     }
