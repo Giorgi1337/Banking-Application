@@ -29,7 +29,7 @@ public class AccountService {
         Account account = new Account();
         account.setAccountHolderName(accountHolderName);
         account.setAccountNumber(accountNumber);
-        account.setBalance(initialDeposit);
+      //  account.setBalance(initialDeposit);
         return accountRepository.save(account);
     }
 
