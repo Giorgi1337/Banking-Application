@@ -5,36 +5,44 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
+<style>
+    .scrollable-table-container {
+        max-height: 70vh;
+        overflow-y: auto;  /* Enable vertical scrolling */
+    }
+</style>
 <body>
 <div class="container mt-5">
     <h2>All Accounts</h2>
     <div class="mb-3">
         <a href="/create" class="btn btn-primary">Create New Account</a>
     </div>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Account Number</th>
-            <th>Account Holder Name</th>
-            <th>Balance</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="account : ${accounts}">
-            <td th:text="${account.accountNumber}"></td>
-            <td th:text="${account.accountHolderName}"></td>
-            <td th:text="${account.balance}"></td>
-            <td>
-                <a th:href="@{'/update/' + ${account.accountNumber}}" class="btn btn-warning">Update</a>
-                <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger">Delete</a>
-                <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary">Transfer</a>
-                <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success">Deposit</a>
-                <a th:href="@{'/withdraw/' + ${account.accountNumber}}" class="btn btn-dark">Withdraw</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="scrollable-table-container mt-3">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Account Number</th>
+                <th>Account Holder Name</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="account : ${accounts}">
+                <td th:text="${account.accountNumber}"></td>
+                <td th:text="${account.accountHolderName}"></td>
+                <td th:text="${account.balance}"></td>
+                <td>
+                    <a th:href="@{'/update/' + ${account.accountNumber}}" class="btn btn-warning">Update</a>
+                    <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger">Delete</a>
+                    <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary">Transfer</a>
+                    <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success">Deposit</a>
+                    <a th:href="@{'/withdraw/' + ${account.accountNumber}}" class="btn btn-dark">Withdraw</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>
