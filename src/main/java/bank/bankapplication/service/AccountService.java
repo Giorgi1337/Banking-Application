@@ -44,6 +44,10 @@ public class AccountService {
         return account.getBalance();
     }
 
+    public List<Withdrawal> getAllWithdrawals() {
+        return withdrawalRepository.findAll();
+    }
+
     public double withdraw(String accountNumber, double amount) {
         if (amount <= 0) {
             throw new RuntimeException("Withdrawal amount must be a positive number");

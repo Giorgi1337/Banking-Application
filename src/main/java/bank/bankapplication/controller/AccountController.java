@@ -119,10 +119,17 @@ public class AccountController {
             model.addAttribute("message", "Withdraw successful. New balance: " + balance);
             return "withdrawResult";
         }catch (RuntimeException e) {
-            model.addAttribute("message", "Error: " + e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("accountNumber", accountNumber);
             return "error";
         }
+    }
+
+    @GetMapping("/withdrawals")
+    public String showWithdrawals(Model model) {
+        List<Withdrawal> withdrawals = accountService.getAllWithdrawals();
+        model.addAttribute("withdrawals", withdrawals);
+        return "withdrawals";
     }
 
     @GetMapping("/balance")
