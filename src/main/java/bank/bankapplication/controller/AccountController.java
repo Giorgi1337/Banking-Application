@@ -28,19 +28,19 @@ public class AccountController {
     public String viewAllAccounts(Model model) {
         List<Account> accounts = accountService.getAllAccounts();
         model.addAttribute("accounts", accounts);
-        return "viewAccounts";
+        return "account/viewAccounts";
     }
 
     @GetMapping("/create")
     public String showCreateAccountForm(Model model) {
         model.addAttribute("account", new Account());
-        return "createAccount";
+        return "account/createAccount";
     }
 
     @PostMapping("/create")
     public String createAccount(@Valid @ModelAttribute Account account, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "createAccount";
+            return "account/createAccount";
         }
 
         try {
@@ -52,7 +52,7 @@ public class AccountController {
             return "redirect:/accounts";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
-            return "createAccount";
+            return "account/createAccount";
         }
     }
 
@@ -61,7 +61,7 @@ public class AccountController {
         Account account = accountService.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         model.addAttribute("account", account);
-        return "updateAccount";
+        return "account/updateAccount";
     }
 
     @PostMapping("/update")
@@ -112,7 +112,7 @@ public class AccountController {
     @GetMapping("/deposit/{accountNumber}")
     public String showDepositForm(@PathVariable String accountNumber, Model model) {
         model.addAttribute("accountNumber", accountNumber);
-        return "deposit";
+        return "transaction/deposit";
     }
 
     @PostMapping("/deposit")
@@ -123,18 +123,18 @@ public class AccountController {
         try {
             double balance = accountService.deposit(accountNumber, amount);
             model.addAttribute("message", "Deposit successful. New balance: " + balance);
-            return "depResult";
+            return "transaction/depResult";
         }catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("accountNumber", accountNumber);
-            return "deposit";
+            return "transaction/deposit";
         }
     }
 
     @GetMapping("/withdraw/{accountNumber}")
     public String showWithdrawForm(@PathVariable String accountNumber, Model model) {
         model.addAttribute("accountNumber", accountNumber);
-        return "withdraw";
+        return "withdraw/withdraw";
     }
 
     @PostMapping("/withdraw")
@@ -145,11 +145,11 @@ public class AccountController {
         try {
             double balance = accountService.withdraw(accountNumber, amount);
             model.addAttribute("message", "Withdraw successful. New balance: " + balance);
-            return "withdrawResult";
+            return "withdraw/withdrawResult";
         }catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("accountNumber", accountNumber);
-            return "error";
+            return "common/error";
         }
     }
 
@@ -157,19 +157,19 @@ public class AccountController {
     public String showWithdrawals(Model model) {
         List<Withdrawal> withdrawals = accountService.getAllWithdrawals();
         model.addAttribute("withdrawals", withdrawals);
-        return "withdrawals";
+        return "withdraw/withdrawals";
     }
 
     @GetMapping("/balance")
     public String showBalanceForm() {
-        return "checkBalance";
+        return "balance/checkBalance";
     }
 
     @PostMapping("/balance")
     public String checkBalance(@RequestParam String accountNumber, Model model) {
         double balance = accountService.checkBalance(accountNumber);
         model.addAttribute("message", "Current balance: " + balance);
-        return "balanceResult";
+        return "balance/balanceResult";
     }
 
     @GetMapping("/transfer/{accountNumber}")
@@ -182,7 +182,7 @@ public class AccountController {
 
         model.addAttribute("fromAccountHolderName", fromAccount.getAccountHolderName());
         model.addAttribute("accounts", accounts);
-        return "transfer";
+        return "transaction/transfer";
     }
 
     @PostMapping("/transfer")
@@ -193,14 +193,14 @@ public class AccountController {
         try {
             accountService.transferByNames(fromAccountHolderName, toAccountHolderName, amount);
             model.addAttribute("message", "Transfer successful");
-            return "transferResult";
+            return "transaction/transferResult";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             List<Account> accounts = accountService.getAllAccounts();
             accounts.removeIf(account -> account.getAccountHolderName().equals(fromAccountHolderName));
             model.addAttribute("fromAccountHolderName", fromAccountHolderName);
             model.addAttribute("accounts", accounts);
-            return "transfer";
+            return "transaction/transfer";
         }
     }
 
@@ -209,6 +209,6 @@ public class AccountController {
         Account account = accountService.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         model.addAttribute("account", account);
-        return "profile";
+        return "account/profile";
     }
 }

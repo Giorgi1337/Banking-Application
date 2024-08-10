@@ -11,7 +11,7 @@
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
         <p th:text="${errorMessage}"></p>
     </div>
-    <form th:action="@{/withdraw}" method="post">
+    <form th:action="@{/templates/withdraw}" method="post">
         <div class="form-group">
             <label for="accountNumber">Account Number</label>
             <input type="text" class="form-control" id="accountNumber" name="accountNumber" th:value="${accountNumber}" readonly>
