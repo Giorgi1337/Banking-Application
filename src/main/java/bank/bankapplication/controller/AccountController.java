@@ -153,27 +153,31 @@ public class AccountController {
 
     @GetMapping("/transfer/{accountNumber}")
     public String showTransferForm(@PathVariable String accountNumber, Model model) {
+        Account fromAccount = accountService.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
         List<Account> accounts = accountService.getAllAccounts();
-        accounts.removeIf(account -> account.getAccountNumber().equals(accountNumber));
-        model.addAttribute("accountNumber", accountNumber);
+        accounts.remove(fromAccount);
+
+        model.addAttribute("fromAccountHolderName", fromAccount.getAccountHolderName());
         model.addAttribute("accounts", accounts);
         return "transfer";
     }
 
     @PostMapping("/transfer")
     public String transfer(
-            @RequestParam String fromAccountNumber,
-            @RequestParam String toAccountNumber,
+            @RequestParam String fromAccountHolderName,
+            @RequestParam String toAccountHolderName,
             @RequestParam double amount, Model model) {
         try {
-            accountService.transfer(fromAccountNumber, toAccountNumber, amount);
+            accountService.transferByNames(fromAccountHolderName, toAccountHolderName, amount);
             model.addAttribute("message", "Transfer successful");
             return "transferResult";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
             List<Account> accounts = accountService.getAllAccounts();
-            accounts.removeIf(account -> account.getAccountNumber().equals(fromAccountNumber));
-            model.addAttribute("accountNumber", fromAccountNumber);
+            accounts.removeIf(account -> account.getAccountHolderName().equals(fromAccountHolderName));
+            model.addAttribute("fromAccountHolderName", fromAccountHolderName);
             model.addAttribute("accounts", accounts);
             return "transfer";
         }

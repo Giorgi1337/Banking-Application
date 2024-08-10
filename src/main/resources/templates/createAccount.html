@@ -24,7 +24,7 @@
 
         <div class="form-group">
             <label for="balance" class="col-form-label">Initial Deposit:</label>
-            <input type="text" id="balance" th:field="*{balance}" class="form-control" required/>
+            <input type="text" id="balance" th:field="*{balance}" class="form-control" readonly/>
             <div class="text-danger" th:if="${#fields.hasErrors('balance')}" th:errors="*{balance}">Balance Error</div>
         </div>
 
