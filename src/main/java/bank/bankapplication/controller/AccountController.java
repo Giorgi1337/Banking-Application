@@ -1,5 +1,8 @@
 package bank.bankapplication.controller;
 
+import bank.bankapplication.exception.AccountNotFoundException;
+import bank.bankapplication.exception.InvalidAmountException;
+import bank.bankapplication.exception.ValidationException;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
@@ -82,9 +85,27 @@ public class AccountController {
         return "redirect:/accounts";
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public String handleRuntimeException(RuntimeException e, Model model) {
+    @ExceptionHandler(AccountNotFoundException.class)
+    public String handleAccountNotFoundException(AccountNotFoundException e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(InvalidAmountException.class)
+    public String handleInvalidAmountException(InvalidAmountException e, Model model) {
+        model.addAttribute("errorMessage", e.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public String handleValidationException(ValidationException e, Model model) {
+        model.addAttribute("errorMessage", e.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(Exception.class)
+    public String handleGenericException(Exception e, Model model) {
+        model.addAttribute("errorMessage", "An unexpected error occurred.");
         return "error";
     }
 

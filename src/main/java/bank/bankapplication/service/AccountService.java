@@ -1,5 +1,8 @@
 package bank.bankapplication.service;
 
+import bank.bankapplication.exception.AccountNotFoundException;
+import bank.bankapplication.exception.InvalidAmountException;
+import bank.bankapplication.exception.ValidationException;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.repository.AccountRepository;
@@ -26,7 +29,7 @@ public class AccountService {
 
     public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth) {
         if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
-            throw new RuntimeException("Account with the same account number already exists.");
+            throw new ValidationException("Account with the same account number already exists.");
         }
         Account account = new Account();
         account.setAccountHolderName(accountHolderName);
@@ -37,10 +40,10 @@ public class AccountService {
 
     public double deposit(String accountNumber, double amount) {
         if (amount <= 0) {
-            throw new RuntimeException("Deposit amount must be a positive number");
+            throw new InvalidAmountException("Deposit amount must be a positive number");
         }
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
         return account.getBalance();
@@ -52,12 +55,12 @@ public class AccountService {
 
     public double withdraw(String accountNumber, double amount) {
         if (amount <= 0) {
-            throw new RuntimeException("Withdrawal amount must be a positive number");
+            throw new InvalidAmountException("Withdrawal amount must be a positive number");
         }
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
         if (account.getBalance() - amount < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InvalidAmountException("Insufficient funds");
         }
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
@@ -67,8 +70,6 @@ public class AccountService {
         withdrawal.setAccountNumber(accountNumber);
         withdrawal.setAmount(amount);
         withdrawalRepository.save(withdrawal);
-
-
         return account.getBalance();
     }
 
