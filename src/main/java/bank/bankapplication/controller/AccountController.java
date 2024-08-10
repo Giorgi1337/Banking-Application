@@ -182,4 +182,12 @@ public class AccountController {
             return "transfer";
         }
     }
+
+    @GetMapping("/profile/{accountNumber}")
+    public String showProfile(@PathVariable String accountNumber, Model model) {
+        Account account = accountService.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        model.addAttribute("account", account);
+        return "profile";
+    }
 }
