@@ -6,7 +6,9 @@ import bank.bankapplication.repository.AccountRepository;
 import bank.bankapplication.repository.WithdrawalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,14 +24,14 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account createAccount(String accountNumber, String accountHolderName, double initialDeposit) {
+    public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth) {
         if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
             throw new RuntimeException("Account with the same account number already exists.");
         }
         Account account = new Account();
         account.setAccountHolderName(accountHolderName);
         account.setAccountNumber(accountNumber);
-      //  account.setBalance(initialDeposit);
+        account.setDateOfBirth(dateOfBirth);
         return accountRepository.save(account);
     }
 
@@ -74,6 +76,7 @@ public class AccountService {
         return accountRepository.findByAccountNumber(accountNumber);
     }
 
+    @Transactional
     public Account updateAccount(Account updatedAccount) {
         Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -93,6 +96,7 @@ public class AccountService {
         return account.getBalance();
     }
 
+    @Transactional
     public void transfer(String fromAccountNumber, String toAccountNumber, double amount) {
         if (amount <= 0) {
             throw new RuntimeException("Transfer amount must be a positive number");

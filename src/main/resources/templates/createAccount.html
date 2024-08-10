@@ -8,23 +8,37 @@
 <body>
 <div class="container mt-5">
     <h2>Create Account</h2>
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
-    </div>
-    <form th:action="@{/create}" th:object="${account}" method="post">
+    <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+    <form th:action="@{/create}" th:object="${account}" method="post" >
         <div class="form-group">
-            <label for="accountHolderName">Account Holder Name</label>
-            <input type="text" class="form-control" id="accountHolderName" th:field="*{accountHolderName}" required>
+            <label for="accountNumber" class="col-form-label">Account Number:</label>
+            <input type="text" id="accountNumber" th:field="*{accountNumber}" class="form-control" required/>
+            <div class="text-danger" th:if="${#fields.hasErrors('accountNumber')}" th:errors="*{accountNumber}">Account Number Error</div>
         </div>
+
         <div class="form-group">
-            <label for="accountNumber">Account Number</label>
-            <input type="text" class="form-control" id="accountNumber" th:field="*{accountNumber}" required>
+            <label for="accountHolderName" class="col-form-label">Account Holder Name:</label>
+            <input type="text" id="accountHolderName" th:field="*{accountHolderName}" class="form-control" required/>
+            <div class="text-danger" th:if="${#fields.hasErrors('accountHolderName')}" th:errors="*{accountHolderName}">Account Holder Name Error</div>
         </div>
+
         <div class="form-group">
-            <label for="balance">Initial Deposit</label>
-            <input type="number" step="0.01" class="form-control" id="balance" th:field="*{balance}" readonly>
+            <label for="balance" class="col-form-label">Initial Deposit:</label>
+            <input type="text" id="balance" th:field="*{balance}" class="form-control" required/>
+            <div class="text-danger" th:if="${#fields.hasErrors('balance')}" th:errors="*{balance}">Balance Error</div>
         </div>
-        <button type="submit" class="btn btn-primary mt-2">Create Account</button>
+
+        <div class="form-group">
+            <label for="dateOfBirth" class="col-form-label">Date of Birth:</label>
+            <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" class="form-control" required/>
+            <div class="text-danger" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">Date of Birth Error</div>
+            <!--            <small class="form-text text-muted">You must be at least 18 years old.</small>-->
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary mt-2">Create Account</button>
+        </div>
+
     </form>
 </div>
 </body>

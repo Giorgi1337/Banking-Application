@@ -4,9 +4,11 @@ import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -33,12 +35,17 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public String createAccount(@ModelAttribute Account account, Model model) {
+    public String createAccount(@Valid @ModelAttribute Account account, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "createAccount";
+        }
+
         try {
             accountService.createAccount(
                     account.getAccountNumber(),
                     account.getAccountHolderName(),
-                    account.getBalance());
+                    account.getDateOfBirth()
+            );
             return "redirect:/accounts";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", e.getMessage());
