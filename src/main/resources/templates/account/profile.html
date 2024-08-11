@@ -18,6 +18,9 @@
                 <strong>Created Date:</strong> <span th:text="${formattedCreatedDate}"></span><br>
             </p>
             <a href="#" th:href="@{/accounts}" class="btn btn-primary">Back to Accounts</a>
+            <a th:href="@{/transactions/{accountHolderName}(accountHolderName=${account.accountHolderName})}" class="btn btn-secondary">
+                View Transactions
+            </a>
         </div>
     </div>
 </div>
