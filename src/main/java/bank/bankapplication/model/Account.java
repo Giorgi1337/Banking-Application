@@ -7,10 +7,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -36,4 +38,8 @@ public class Account {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @MinAge() // Minimum age requirement
     private LocalDate dateOfBirth;
+
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 }

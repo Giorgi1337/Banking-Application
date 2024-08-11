@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -217,7 +218,13 @@ public class AccountController {
     public String showProfile(@PathVariable String accountNumber, Model model) {
         Account account = accountService.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedCreatedDate = account.getCreatedDate().format(formatter);
+
         model.addAttribute("account", account);
+        model.addAttribute("formattedCreatedDate", formattedCreatedDate);
+
         return "account/profile";
     }
 }
