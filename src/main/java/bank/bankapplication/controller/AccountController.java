@@ -112,7 +112,12 @@ public class AccountController {
 
     @GetMapping("/deposit/{accountNumber}")
     public String showDepositForm(@PathVariable String accountNumber, Model model) {
+        Account account = accountService.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
         model.addAttribute("accountNumber", accountNumber);
+        model.addAttribute("accountHolderName", account.getAccountHolderName());
+
         return "transaction/deposit";
     }
 
