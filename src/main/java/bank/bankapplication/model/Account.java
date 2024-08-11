@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -42,4 +43,7 @@ public class Account {
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdDate;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Withdrawal> withdrawals;
 }

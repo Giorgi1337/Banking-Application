@@ -4,6 +4,7 @@ import bank.bankapplication.exception.AccountNotFoundException;
 import bank.bankapplication.exception.InvalidAmountException;
 import bank.bankapplication.exception.ValidationException;
 import bank.bankapplication.model.Account;
+import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
@@ -231,5 +232,20 @@ public class AccountController {
         model.addAttribute("formattedCreatedDate", formattedCreatedDate);
 
         return "account/profile";
+    }
+
+    @GetMapping("/transactions/{accountHolderName}")
+    public String viewTransactionsByHolder(@PathVariable String accountHolderName, Model model) {
+        List<Transaction> transactions = accountService.getTransactionsByAccountHolderName(accountHolderName);
+        model.addAttribute("transactions", transactions);
+        model.addAttribute("accountHolderName", accountHolderName);
+        return "transaction/viewTransactionsByHolder";
+    }
+
+    @GetMapping("/transactions")
+    public String viewAllTransactions(Model model) {
+        List<Transaction> transactions = accountService.getAllTransactions();
+        model.addAttribute("transactions", transactions);
+        return "transaction/viewTransactions";
     }
 }

@@ -4,8 +4,10 @@ import bank.bankapplication.exception.AccountNotFoundException;
 import bank.bankapplication.exception.InvalidAmountException;
 import bank.bankapplication.exception.ValidationException;
 import bank.bankapplication.model.Account;
+import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.repository.AccountRepository;
+import bank.bankapplication.repository.TransactionRepository;
 import bank.bankapplication.repository.WithdrawalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class AccountService {
 
     private final WithdrawalRepository withdrawalRepository;
 
+    private final TransactionRepository transactionRepository;
+
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
@@ -38,38 +42,72 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    @Transactional
     public double deposit(String accountNumber, double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException("Deposit amount must be a positive number");
         }
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
+
+        // Record the transaction
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountHolderName("N/A"); // or set a value if applicable
+        transaction.setToAccountHolderName(account.getAccountHolderName());
+        transaction.setTransactionType("Deposit");
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
+
         return account.getBalance();
+    }
+
+    public List<Transaction> getTransactionsByAccountHolderName(String accountHolderName) {
+        List<Transaction> fromTransactions = transactionRepository.findByFromAccountHolderName(accountHolderName);
+        List<Transaction> toTransactions = transactionRepository.findByToAccountHolderName(accountHolderName);
+        fromTransactions.addAll(toTransactions);
+        return fromTransactions;
+    }
+
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
     }
 
     public List<Withdrawal> getAllWithdrawals() {
         return withdrawalRepository.findAll();
     }
 
+    @Transactional
     public double withdraw(String accountNumber, double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException("Withdrawal amount must be a positive number");
         }
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
         if (account.getBalance() - amount < 0) {
             throw new InvalidAmountException("Insufficient funds");
         }
+
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
 
-        // Save withdrawal history with Account reference
+        // Record the transaction
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountHolderName(account.getAccountHolderName());
+        transaction.setToAccountHolderName("N/A");
+        transaction.setTransactionType("Withdrawal");
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
+
+        // Save withdrawal history
         Withdrawal withdrawal = new Withdrawal();
         withdrawal.setAccount(account);
         withdrawal.setAmount(amount);
         withdrawalRepository.save(withdrawal);
+
         return account.getBalance();
     }
 
@@ -85,9 +123,13 @@ public class AccountService {
         return accountRepository.save(existingAccount);
     }
 
+    @Transactional
     public void deleteAccount(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+        withdrawalRepository.deleteAll(withdrawalRepository.findByAccount(account));
+
         accountRepository.delete(account);
     }
 
@@ -117,6 +159,14 @@ public class AccountService {
 
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
+
+        // Record the transaction
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountHolderName(fromAccount.getAccountHolderName());
+        transaction.setToAccountHolderName(toAccount.getAccountHolderName());
+        transaction.setTransactionType("Transfer");
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
     }
 
 }
