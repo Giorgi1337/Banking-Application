@@ -74,21 +74,32 @@ class AccountServiceTest {
     }
 
     @Test
-    void transferByNames_ShouldTransferFunds() {
+    void transferByAccountNumbers_ShouldTransferFunds() {
+        // Create test accounts with account numbers
         Account fromAccount = new Account();
+        fromAccount.setAccountNumber("123456");
         fromAccount.setAccountHolderName("John Doe");
         fromAccount.setBalance(200.0);
 
         Account toAccount = new Account();
+        toAccount.setAccountNumber("654321");
         toAccount.setAccountHolderName("Jane Doe");
         toAccount.setBalance(300.0);
 
-        when(accountRepository.findByAccountHolderName("John Doe")).thenReturn(Optional.of(fromAccount));
-        when(accountRepository.findByAccountHolderName("Jane Doe")).thenReturn(Optional.of(toAccount));
+        // Mock repository behavior
+        when(accountRepository.findByAccountNumber("123456")).thenReturn(Optional.of(fromAccount));
+        when(accountRepository.findByAccountNumber("654321")).thenReturn(Optional.of(toAccount));
         when(accountRepository.save(any(Account.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        accountService.transferByNames("John Doe", "Jane Doe", 50.0);
+        // Perform the transfer
+        accountService.transferByAccountNumbers("123456", "654321", 50.0);
+
+        // Verify the balance after transfer
         assertEquals(150.0, fromAccount.getBalance());
         assertEquals(350.0, toAccount.getBalance());
+
+        // Verify that the save method was called
+        verify(accountRepository).save(fromAccount);
+        verify(accountRepository).save(toAccount);
     }
 }

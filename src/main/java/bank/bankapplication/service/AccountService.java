@@ -98,14 +98,14 @@ public class AccountService {
     }
 
     @Transactional
-    public void transferByNames(String fromAccountHolderName, String toAccountHolderName, double amount) {
+    public void transferByAccountNumbers(String fromAccountNumber, String toAccountNumber, double amount) {
         if (amount <= 0) {
             throw new RuntimeException("Transfer amount must be a positive number");
         }
-        Account fromAccount = accountRepository.findByAccountHolderName(fromAccountHolderName)
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
                 .orElseThrow(() -> new RuntimeException("Source account not found"));
 
-        Account toAccount = accountRepository.findByAccountHolderName(toAccountHolderName)
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
                 .orElseThrow(() -> new RuntimeException("Destination account not found"));
 
         if (fromAccount.getBalance() - amount < 0) {

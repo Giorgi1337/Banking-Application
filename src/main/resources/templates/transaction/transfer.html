@@ -12,20 +12,30 @@
     <p th:text="${errorMessage}"></p>
   </div>
   <form th:action="@{/transfer}" method="post">
+    <!-- Hidden field for fromAccountNumber -->
+    <input type="hidden" name="fromAccountNumber" th:value="${fromAccountNumber}" />
+
     <div class="form-group">
       <label for="fromAccountHolderName">From Account Holder Name</label>
       <input type="text" class="form-control" id="fromAccountHolderName" name="fromAccountHolderName" th:value="${fromAccountHolderName}" readonly>
     </div>
     <div class="form-group">
-      <label for="toAccountHolderName">To Account Holder Name</label>
-      <select class="form-control" id="toAccountHolderName" name="toAccountHolderName" required>
-        <option th:each="account : ${accounts}" th:value="${account.accountHolderName}" th:text="${account.accountHolderName}"></option>
+      <label for="fromAccountBalance">From Account Balance</label>
+      <input type="text" class="form-control" id="fromAccountBalance" name="fromAccountBalance" th:value="${fromAccountBalance}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label for="toAccountNumber">To Account</label>
+      <select class="form-control" id="toAccountNumber" name="toAccountNumber" required>
+        <option th:each="account : ${accounts}" th:value="${account.accountNumber}" th:text="${account.accountHolderName}"></option>
       </select>
     </div>
+
     <div class="form-group">
       <label for="amount">Amount</label>
       <input type="number" step="0.01" class="form-control" id="amount" name="amount" min="0.01" required>
     </div>
+
     <button type="submit" class="btn btn-primary mt-2">Transfer</button>
   </form>
 </div>
