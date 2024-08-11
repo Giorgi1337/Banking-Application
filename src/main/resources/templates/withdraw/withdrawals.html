@@ -12,7 +12,7 @@
         <thead>
         <tr>
             <th>Withdrawal ID</th>
-            <th>Account Number</th>
+            <th>Account Holder Name</th>
             <th>Amount</th>
             <th>Date</th>
         </tr>
@@ -20,9 +20,9 @@
         <tbody>
         <tr th:each="withdrawal : ${withdrawals}">
             <td th:text="${withdrawal.id}"></td>
-            <td th:text="${withdrawal.getAccountNumber()}"></td>
+            <td th:text="${withdrawal.account.accountHolderName}"></td>
             <td th:text="${withdrawal.amount}"></td>
-            <td th:text="${#dates.format(withdrawal.getWithdrawDate(), 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#dates.format(withdrawal.withdrawDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
         </tbody>
     </table>

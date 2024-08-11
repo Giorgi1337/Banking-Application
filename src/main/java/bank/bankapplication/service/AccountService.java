@@ -65,9 +65,9 @@ public class AccountService {
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
 
-        // Save withdrawal history
+        // Save withdrawal history with Account reference
         Withdrawal withdrawal = new Withdrawal();
-        withdrawal.setAccountNumber(accountNumber);
+        withdrawal.setAccount(account);
         withdrawal.setAmount(amount);
         withdrawalRepository.save(withdrawal);
         return account.getBalance();
