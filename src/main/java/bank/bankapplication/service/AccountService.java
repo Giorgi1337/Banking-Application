@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -169,4 +170,7 @@ public class AccountService {
         transactionRepository.save(transaction);
     }
 
+    public List<Transaction> searchTransactions(LocalDate fromDate, LocalDate toDate, Double minAmount, Double maxAmount, String transactionType) {
+        return transactionRepository.findTransactions(fromDate, toDate, minAmount, maxAmount, transactionType);
+    }
 }

@@ -10,14 +10,19 @@ import bank.bankapplication.service.AccountService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -246,6 +251,57 @@ public class AccountController {
     public String viewAllTransactions(Model model) {
         List<Transaction> transactions = accountService.getAllTransactions();
         model.addAttribute("transactions", transactions);
+
+        List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
+        model.addAttribute("transactionTypes", transactionTypes);
+
+        return "transaction/viewTransactions";
+    }
+
+    @GetMapping("/transactions/search")
+    public String searchTransactions(
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) Double maxAmount,
+            @RequestParam(required = false) String transactionType,
+            Model model) {
+
+        List<Transaction> transactions = accountService.getAllTransactions();
+
+        // Filter based on provided parameters
+        if (fromDate != null && !fromDate.isEmpty()) {
+            LocalDate from = LocalDate.parse(fromDate);
+            transactions = transactions.stream()
+                    .filter(t -> t.getTransactionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isAfter(from.minusDays(1)))
+                    .collect(Collectors.toList());
+        }
+        if (toDate != null && !toDate.isEmpty()) {
+            LocalDate to = LocalDate.parse(toDate);
+            transactions = transactions.stream()
+                    .filter(t -> t.getTransactionDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(to.plusDays(1)))
+                    .collect(Collectors.toList());
+        }
+        if (minAmount != null) {
+            transactions = transactions.stream()
+                    .filter(t -> t.getAmount() >= minAmount)
+                    .collect(Collectors.toList());
+        }
+        if (maxAmount != null) {
+            transactions = transactions.stream()
+                    .filter(t -> t.getAmount() <= maxAmount)
+                    .collect(Collectors.toList());
+        }
+        if (transactionType != null && !transactionType.isEmpty()) {
+            transactions = transactions.stream()
+                    .filter(t -> t.getTransactionType().equalsIgnoreCase(transactionType))
+                    .collect(Collectors.toList());
+        }
+
+        model.addAttribute("transactions", transactions);
+        List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
+        model.addAttribute("transactionTypes", transactionTypes);
+
         return "transaction/viewTransactions";
     }
 }
