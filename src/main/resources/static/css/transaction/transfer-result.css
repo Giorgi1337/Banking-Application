@@ -1,0 +1,40 @@
+/* General Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 1rem; /* More rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border: 1px solid #003366; /* Dark blue border */
+    max-width: 600px; /* Max width for better layout */
+    margin: 2rem auto; /* Center the container */
+}
+
+.alert-info {
+    background-color: #d1ecf1; /* Light blue background */
+    color: #0c5460; /* Dark blue text color */
+    border-color: #bee5eb; /* Light blue border color */
+    border-radius: 0.75rem; /* Rounded corners */
+    padding: 1rem; /* Padding for alert */
+    font-size: 1.1rem; /* Slightly larger font size */
+}
+
+.btn-secondary {
+    background-color: #003366; /* Dark blue for secondary button */
+    border-color: #003366; /* Dark blue border color */
+    color: #ffffff; /* White text color */
+    padding: 0.75rem 1.25rem; /* Padding for better button size */
+    border-radius: 0.75rem; /* Rounded corners */
+    font-weight: 500; /* Slightly bolder text */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+}
+
+.btn-secondary:hover {
+    background-color: #00254d; /* Slightly darker blue for hover effect */
+    border-color: #00254d; /* Darker blue border color on hover */
+}

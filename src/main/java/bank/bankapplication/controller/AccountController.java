@@ -233,8 +233,15 @@ public class AccountController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedCreatedDate = account.getCreatedDate().format(formatter);
 
+        List<Transaction> recentTransactions = accountService.getTransactionsByAccountHolderName(account.getAccountHolderName())
+                .stream()
+                .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate())) // Sort by date descending
+                .limit(3) // Get the last 3 transactions
+                .collect(Collectors.toList());
+
         model.addAttribute("account", account);
         model.addAttribute("formattedCreatedDate", formattedCreatedDate);
+        model.addAttribute("recentTransactions", recentTransactions);
 
         return "account/profile";
     }

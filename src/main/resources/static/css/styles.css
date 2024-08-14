@@ -1,0 +1,215 @@
+/* Progress Bar Styles */
+.progress {
+    height: 1.2rem; /* Slimmer appearance */
+    border-radius: 0.75rem; /* Rounded corners */
+    background-color: #e0e0e0; /* Light gray track */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.progress-bar {
+    background-color: #007bff; /* Custom progress color */
+    border-radius: 0.75rem; /* Rounded corners */
+    transition: width 0.6s ease; /* Smooth transition */
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2); /* Subtle inner shadow */
+}
+
+/* Remove stripes and animation for solid design */
+.progress-bar-striped,
+.progress-bar-animated {
+    background-image: none;
+    animation: none;
+}
+
+/* General Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White container background */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16); /* Prominent shadow */
+}
+
+h2 {
+    background-color: #003366; /* Dark blue title background */
+    color: #ffffff; /* White title text */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700; /* Bold font */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Scrollable Table Container */
+.scrollable-table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+}
+
+/* Table Styles */
+.table thead {
+    background-color: #003366; /* Dark blue table header */
+    color: #ffffff; /* White header text */
+}
+
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #e0e0e0; /* Subtle hover effect */
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 0.5rem; /* Rounded corners */
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #003366;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #00254d;
+}
+
+/* Custom Button Styles */
+.btn-custom-secondary {
+    background-color: #6c757d; /* Custom secondary color */
+    color: #fff; /* White text */
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-custom-secondary:hover {
+    background-color: #5a6268; /* Darker on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Link Styles */
+.account-link {
+    text-decoration: none;
+    color: #003366;
+    font-weight: 600;
+}
+
+.account-link:hover {
+    color: #00254d;
+}
+
+/* Search Bar Styles */
+.search-bar input {
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+}
+
+/* Tooltip Styles */
+.tooltip-inner {
+    background-color: #003366;
+    color: #ffffff;
+}
+
+/* Card Styles */
+.card {
+    border: 1px solid #dee2e6; /* Light gray border */
+    margin-bottom: 1.5rem; /* Spacing between cards */
+    background-color: #ffffff; /* White background */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animation on hover */
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 240, 0.8));
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    color: #003366; /* Dark blue title */
+    margin-bottom: 0.75rem; /* Space below title */
+}
+
+.card-subtitle {
+    font-size: 1rem;
+    color: #6c757d; /* Secondary color for subtitle */
+    margin-bottom: 1rem; /* Space below subtitle */
+}
+
+.card-text {
+    font-size: 0.875rem;
+    color: #495057; /* Darker gray for text */
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+}
+
+.card-body:hover .card-text {
+    opacity: 1;
+}
+
+.card-header {
+    background-color: #343a40; /* Darker header background */
+    color: #fff; /* White text */
+}
+
+.card-footer {
+    background-color: #f8f9fa; /* Light gray footer */
+    border-top: 1px solid #dee2e6; /* Border for separation */
+    padding: 1rem;
+    border-radius: 0 0 0.75rem 0.75rem; /* Rounded bottom corners */
+}
+
+.card-footer:hover {
+    background-color: #e9ecef; /* Slightly darker on hover */
+}
+
+.card-img-top {
+    border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+    margin-bottom: 1rem; /* Space below image */
+}
+
+.card-img-top:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+    transition: transform 0.3s ease; /* Smooth transition */
+}
+
+/* Recent Transactions Styles */
+.recent-transactions {
+    background-color: #f8f9fa; /* Light gray section background */
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.recent-transactions h4 {
+    margin-bottom: 1rem;
+    color: #003366; /* Dark blue section title */
+}
+
+.list-group-item {
+    border: none; /* Remove border */
+    padding: 0.75rem; /* Adjust padding */
+    border-radius: 0.5rem; /* Rounded corners */
+    background-color: #ffffff; /* White background */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.list-group-item:hover {
+    background-color: #e0e0e0; /* Light hover effect */
+}

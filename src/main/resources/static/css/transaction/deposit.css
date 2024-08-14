@@ -1,0 +1,69 @@
+/* Deposit Page Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More prominent shadow */
+    max-width: 600px; /* Limit container width */
+    margin-top: 2rem; /* Space from top */
+}
+
+h2 {
+    background-color: #007bff; /* Primary blue for title background */
+    color: #ffffff; /* White text color for title */
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-weight: 700; /* Bold font */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.card {
+    border: 1px solid #dee2e6; /* Light gray border */
+    background-color: #ffffff; /* White background */
+    border-radius: 0.75rem; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-bottom: 1.5rem; /* Spacing between cards */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animation on hover */
+}
+
+.card:hover {
+    transform: scale(1.03); /* Slight zoom effect */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+}
+
+.card-header {
+    background-color: #003366; /* Dark blue for header */
+    color: #ffffff; /* White text color */
+    padding: 1rem;
+    border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+    border-radius: 0 0 0.75rem 0.75rem; /* Rounded bottom corners */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.9)); /* Gradient background */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+}
+
+.btn-cool {
+    background: linear-gradient(135deg, #007bff, #0056b3); /* Gradient background */
+    color: #ffffff; /* White text */
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: background 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+.btn-cool:hover {
+    background: linear-gradient(135deg, #0056b3, #003d7a); /* Darker gradient on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}

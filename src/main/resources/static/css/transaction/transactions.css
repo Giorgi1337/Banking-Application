@@ -1,0 +1,87 @@
+/* Transactions Page Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Poppins', sans-serif; /* Consistent font across pages */
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 1rem; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    max-width: 1000px; /* Increase max-width for larger screens */
+    margin-top: 2rem; /* Spacing from top */
+}
+
+h1 {
+    background-color: #003366; /* Dark blue background */
+    color: #ffffff; /* White text color */
+    padding: 1rem;
+    border-radius: 0.75rem;
+    font-weight: 700; /* Bold text */
+    margin-bottom: 2rem; /* Spacing below heading */
+    text-align: center; /* Centered text */
+}
+
+.form-label {
+    font-weight: 600; /* Bolder labels */
+}
+
+.form-control, .form-select {
+    border-color: #ced4da; /* Light border */
+    border-radius: 0.375rem; /* Rounded corners */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #003366; /* Dark blue border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 51, 102, 0.25); /* Focus shadow */
+}
+
+.table-wrapper {
+    max-height: 500px; /* Set height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-top: 1.5rem; /* Space above table */
+}
+
+.table-responsive {
+    overflow: hidden; /* Hide default scrollbars */
+}
+
+.table thead th {
+    background-color: #003366; /* Dark blue header */
+    color: #ffffff; /* White text */
+    border-bottom: 2px solid #00254d; /* Darker border */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa; /* Light gray rows */
+}
+
+.table tbody tr:hover {
+    background-color: #e2e6ea; /* Light gray on hover */
+}
+
+.btn-primary {
+    background-color: #003366; /* Dark blue button */
+    border-color: #003366; /* Matching border */
+    border-radius: 0.5rem; /* Rounded corners */
+}
+
+.btn-primary:hover {
+    background-color: #00254d; /* Darker blue on hover */
+    border-color: #00254d; /* Darker border on hover */
+}
+
+.btn-secondary {
+    background-color: #003366; /* Dark blue for secondary button */
+    border-color: #003366; /* Matching border color */
+    color: #ffffff; /* White text color */
+    border-radius: 0.5rem; /* Rounded corners */
+}
+
+.btn-secondary:hover {
+    background-color: #00254d; /* Darker shade for hover */
+    border-color: #00254d; /* Darker border on hover */
+}

@@ -1,0 +1,38 @@
+/* Deposit Result Page Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* More prominent shadow */
+    max-width: 500px; /* Limit container width */
+    margin-top: 2rem; /* Space from top */
+}
+
+.alert-info {
+    background-color: #e6f7ff; /* Light blue background for info alert */
+    color: #0056b3; /* Darker blue text color */
+    border-color: #b3d7ff; /* Light blue border */
+    border-radius: 0.75rem; /* Rounded corners */
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.btn-secondary {
+    background-color: #007bff; /* Primary blue for button */
+    color: #ffffff; /* White text */
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+.btn-secondary:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}

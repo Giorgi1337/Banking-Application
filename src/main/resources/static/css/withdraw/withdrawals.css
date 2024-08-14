@@ -1,0 +1,62 @@
+/* Withdrawals Page Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16); /* More prominent shadow */
+    margin-top: 1rem;
+}
+
+h2 {
+    background-color: #003366; /* Dark blue for title background */
+    color: #ffffff; /* White text color for title */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700; /* Bold font */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.table-wrapper {
+    max-height: 500px; /* Height for scrolling */
+    overflow-y: auto;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.table-wrapper table {
+    background-color: #ffffff; /* White background for table */
+    border-radius: 0.75rem;
+    width: 100%; /* Full width */
+}
+
+.table thead th {
+    background-color: #003366; /* Dark blue for table header */
+    color: #ffffff; /* White text color for table header */
+    border-bottom: 2px solid #00254d; /* Darker border for header */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa; /* Light gray for odd rows */
+}
+
+.table tbody tr:hover {
+    background-color: #e2e6ea; /* Light gray for row hover */
+}
+
+.btn-primary {
+    background-color: #003366; /* Dark blue for button */
+    border-color: #003366; /* Matching border color */
+    border-radius: 0.5rem; /* Rounded corners */
+}
+
+.btn-primary:hover {
+    background-color: #00254d; /* Slightly darker shade for hover */
+    border-color: #00254d; /* Darker border color on hover */
+}

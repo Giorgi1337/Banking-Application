@@ -1,0 +1,71 @@
+/* Account Page Specific Styles */
+
+/* Search Bar Styles */
+.search-bar input {
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+}
+
+/* Scrollable Table Container */
+.scrollable-table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+}
+
+/* Table Styles */
+.table thead {
+    background-color: #003366; /* Dark blue for table header */
+    color: #ffffff; /* White text color for table header */
+}
+
+.table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #e0e0e0; /* Subtle hover effect */
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 0.5rem; /* Rounded corners for buttons */
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #003366;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #00254d;
+}
+
+/* Custom Button Styles */
+.btn-custom-secondary {
+    background-color: #6c757d; /* Custom secondary color */
+    color: #fff; /* White text */
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-custom-secondary:hover {
+    background-color: #5a6268; /* Darker shade on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Link Styles */
+.account-link {
+    text-decoration: none;
+    color: #003366;
+    font-weight: 600;
+}
+
+.account-link:hover {
+    color: #00254d;
+}

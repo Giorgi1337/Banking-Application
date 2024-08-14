@@ -1,0 +1,54 @@
+/* General Styles */
+body {
+    background-color: #f4f4f4; /* Light gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #343a40; /* Darker text color */
+}
+
+.container {
+    background-color: #ffffff; /* White background for container */
+    padding: 2rem;
+    border-radius: 0.5rem; /* Slightly less rounded for a more solid look */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Softer shadow for a cleaner look */
+    margin-top: 20px;
+}
+
+h2 {
+    color: #003366; /* Dark blue for title color */
+    border-bottom: 2px solid #003366; /* Dark blue border for bottom */
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700; /* Bold font */
+}
+
+.btn-primary {
+    background-color: #003366; /* Dark blue for button */
+    border-color: #003366;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #00254d; /* Slightly darker shade for hover */
+    border-color: #00254d;
+}
+
+.table thead th {
+    background-color: #003366; /* Dark blue for table header */
+    color: #ffffff; /* White text color for table header */
+    border-bottom: 2px solid #00254d;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa; /* Light gray for odd rows */
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #ffffff; /* White background for even rows */
+}
+
+.table tbody tr:hover {
+    background-color: #e2e6ea; /* Light gray for row hover */
+}

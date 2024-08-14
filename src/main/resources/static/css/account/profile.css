@@ -1,0 +1,130 @@
+/* Profile Placeholder */
+.profile-placeholder {
+    width: 75px;
+    height: 75px;
+    background: linear-gradient(45deg, #007bff, #00d4ff); /* Gradient border */
+    color: #fff; /* Text color */
+    border-radius: 50%; /* Circular shape */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem; /* Adjust size as needed */
+    font-weight: bold;
+    margin-right: 15px; /* Gap between image and text */
+    border: 5px solid transparent; /* Transparent border for gradient */
+}
+
+/* Card Header Styles */
+.card-header {
+    background-color: #343a40; /* Darker background for header */
+    color: #fff; /* White text */
+}
+
+/* Profile Card Animation */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Cool Background Effect for Profile Section */
+.card-body {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(240, 240, 240, 0.8));
+    border-radius: 0.75rem;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Details Animation */
+.card-text {
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out;
+}
+
+.card-body:hover .card-text {
+    opacity: 1;
+}
+
+.recent-transactions {
+    background-color: #f8f9fa; /* Light gray background for the section */
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.recent-transactions h4 {
+    margin-bottom: 1rem;
+    color: #003366; /* Dark blue for the section title */
+}
+
+.list-group-item {
+    border: none; /* Remove border for list items */
+    padding: 0.75rem; /* Adjust padding */
+    border-radius: 0.5rem; /* Rounded corners */
+    background-color: #ffffff; /* White background */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.list-group-item:hover {
+    background-color: #e0e0e0; /* Light hover effect */
+}
+
+/* Card Styles */
+.card {
+    border: 1px solid #dee2e6; /* Light gray border */
+    margin-bottom: 1.5rem; /* Spacing between cards */
+    background-color: #ffffff; /* White background */
+}
+
+/* Add padding and border radius to the card body */
+.card-body {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+}
+
+/* Card Title Styles */
+.card-title {
+    font-size: 1.25rem;
+    color: #003366; /* Dark blue for title */
+    margin-bottom: 0.75rem; /* Space below title */
+}
+
+/* Card Subtitle Styles */
+.card-subtitle {
+    font-size: 1rem;
+    color: #6c757d; /* Secondary color for subtitle */
+    margin-bottom: 1rem; /* Space below subtitle */
+}
+
+/* Card Text Styles */
+.card-text {
+    font-size: 0.875rem;
+    color: #495057; /* Darker gray for text */
+}
+
+/* Card Footer Styles */
+.card-footer {
+    background-color: #f8f9fa; /* Light gray background for footer */
+    border-top: 1px solid #dee2e6; /* Border for separation */
+    padding: 1rem;
+    border-radius: 0 0 0.75rem 0.75rem; /* Rounded bottom corners */
+}
+
+/* Add hover effect for card footer */
+.card-footer:hover {
+    background-color: #e9ecef; /* Slightly darker on hover */
+}
+
+/* Card Image Styles */
+.card-img-top {
+    border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+    margin-bottom: 1rem; /* Space below image */
+}
+
+/* Add animation for card image hover */
+.card-img-top:hover {
+    transform: scale(1.05); /* Slight zoom effect */
+    transition: transform 0.3s ease; /* Smooth transition */
+}
