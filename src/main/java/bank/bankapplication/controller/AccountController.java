@@ -1,5 +1,7 @@
 package bank.bankapplication.controller;
 
+import bank.bankapplication.exception.DuplicateAccountNumberException;
+import bank.bankapplication.exception.InvalidAmountException;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
@@ -7,6 +9,9 @@ import bank.bankapplication.service.AccountService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,10 +33,16 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/accounts")
-    public String viewAllAccounts(Model model) {
-        List<Account> accounts = accountService.getAllAccounts();
-        model.addAttribute("accounts", accounts);
-        return "account/viewAccounts";
+    public String viewAccountsPage(Model model,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "10") int size,
+                                   @RequestParam(defaultValue = "") String name) {
+            Page<Account> accountPage = accountService.getAccountsPaginated(page, size, name);
+            model.addAttribute("accountPage", accountPage);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", accountPage.getTotalPages());
+            model.addAttribute("name", name);
+            return "account/viewAccounts";
     }
 
     @GetMapping("/create")
@@ -49,6 +60,9 @@ public class AccountController {
         try {
             accountService.createAccount(account.getAccountNumber(), account.getAccountHolderName(), account.getDateOfBirth());
             return "redirect:/accounts";
+        } catch (DuplicateAccountNumberException e) {
+            model.addAttribute("errorMessage", "Account with this number already exists: " + e.getMessage());
+            return "account/createAccount";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Error creating account: " + e.getMessage());
             return "account/createAccount";
@@ -253,5 +267,10 @@ public class AccountController {
     private Account getAccountByNumber(String accountNumber) {
         return accountService.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found for number: " + accountNumber));
+    }
+
+    @GetMapping("favicon.ico")
+    public ResponseEntity<Void> favicon() {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

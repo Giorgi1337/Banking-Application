@@ -9,6 +9,9 @@ import bank.bankapplication.repository.TransactionRepository;
 import bank.bankapplication.repository.WithdrawalRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +30,9 @@ public class AccountService {
 
     private final TransactionRepository transactionRepository;
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    public Page<Account> getAccountsPaginated(int page, int size, String name) {
+        Pageable pageable = PageRequest.of(page, size);
+        return accountRepository.findByAccountHolderNameContaining(name, pageable);
     }
 
     public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth) {
@@ -182,5 +186,9 @@ public class AccountService {
 
     public List<Transaction> searchTransactions(LocalDate fromDate, LocalDate toDate, Double minAmount, Double maxAmount, String transactionType) {
         return transactionRepository.findTransactions(fromDate, toDate, minAmount, maxAmount, transactionType);
+    }
+
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 }

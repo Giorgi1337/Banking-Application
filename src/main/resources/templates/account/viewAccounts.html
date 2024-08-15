@@ -19,10 +19,14 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="search-bar mb-4">
-        <input type="text" id="searchInput" class="form-control" placeholder="Search by Account Holder Name...">
-    </div>
+    <form th:action="@{/accounts}" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text" id="searchInput" name="name" class="form-control" placeholder="Search by Account Holder Name..." th:value="${name}">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </div>
+    </form>
 
+    <!-- Accounts Table -->
     <div class="scrollable-table-container mt-3">
         <table class="table table-striped table-bordered">
             <thead>
@@ -33,8 +37,8 @@
                 <th>Actions</th>
             </tr>
             </thead>
-            <tbody id="accountsTableBody">
-            <tr th:each="account : ${accounts}">
+            <tbody>
+            <tr th:each="account : ${accountPage.content}">
                 <td th:text="${account.accountNumber}"></td>
                 <td>
                     <a th:href="@{'/profile/' + ${account.accountNumber}}" th:text="${account.accountHolderName}"
@@ -52,6 +56,25 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/accounts(page=${currentPage - 1}, size=${accountPage.size}, name=${name})}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/accounts(page=${i}, size=${accountPage.size}, name=${name})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{/accounts(page=${currentPage + 1}, size=${accountPage.size}, name=${name})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 <!-- Bootstrap and Popper.js -->

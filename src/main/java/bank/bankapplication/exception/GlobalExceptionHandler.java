@@ -16,27 +16,35 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleAccountNotFoundException(AccountNotFoundException e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
-        return "error";
+        return "common/error";
+    }
+
+    @ExceptionHandler(DuplicateAccountNumberException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleDuplicateAccountNumberException(DuplicateAccountNumberException e, Model model) {
+        model.addAttribute("errorMessage", e.getMessage());
+        return "common/error";
     }
 
     @ExceptionHandler(InvalidAmountException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleInvalidAmountException(InvalidAmountException e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
-        return "error/invalidAmount";
+        return "common/error";
     }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleValidationException(ValidationException e, Model model) {
         model.addAttribute("errorMessage", e.getMessage());
-        return "error";
+        return "common/error";
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleGenericException(Exception e, Model model) {
         model.addAttribute("errorMessage", "An unexpected error occurred.");
-        return "error";
+        return "common/error";
     }
+
 }
