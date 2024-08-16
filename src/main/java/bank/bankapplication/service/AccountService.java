@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class AccountService {
     private final TransactionRepository transactionRepository;
 
     public Page<Account> getAccountsPaginated(int page, int size, String name) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("accountHolderName").ascending());
         return accountRepository.findByAccountHolderNameContaining(name, pageable);
     }
 
@@ -169,19 +170,12 @@ public class AccountService {
         accountRepository.save(toAccount);
 
         // Record the transaction
-        Transaction fromTransaction = new Transaction();
-        fromTransaction.setFromAccountHolderName(fromAccount.getAccountHolderName());
-        fromTransaction.setToAccountHolderName(toAccount.getAccountHolderName());
-        fromTransaction.setTransactionType("Transfer Out");
-        fromTransaction.setAmount(amount);
-        transactionRepository.save(fromTransaction);
-
-        Transaction toTransaction = new Transaction();
-        toTransaction.setFromAccountHolderName(fromAccount.getAccountHolderName());
-        toTransaction.setToAccountHolderName(toAccount.getAccountHolderName());
-        toTransaction.setTransactionType("Transfer In");
-        toTransaction.setAmount(amount);
-        transactionRepository.save(toTransaction);
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountHolderName(fromAccount.getAccountHolderName());
+        transaction.setToAccountHolderName(toAccount.getAccountHolderName());
+        transaction.setTransactionType("Transfer");
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
     }
 
     public List<Transaction> searchTransactions(LocalDate fromDate, LocalDate toDate, Double minAmount, Double maxAmount, String transactionType) {
