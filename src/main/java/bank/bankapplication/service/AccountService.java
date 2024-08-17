@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.login.AccountNotFoundException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -121,6 +120,11 @@ public class AccountService {
 
     public Optional<Account> findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber);
+    }
+
+    public Account getAccountByNumber(String accountNumber) {
+        return findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new RuntimeException("Account not found for number: " + accountNumber));
     }
 
     @Transactional

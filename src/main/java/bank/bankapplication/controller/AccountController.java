@@ -1,7 +1,6 @@
 package bank.bankapplication.controller;
 
 import bank.bankapplication.exception.DuplicateAccountNumberException;
-import bank.bankapplication.exception.InvalidAmountException;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
@@ -10,8 +9,6 @@ import bank.bankapplication.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
-public class AccountController {
+public class AccountController extends BaseController {
 
     private final AccountService accountService;
 
@@ -39,12 +36,10 @@ public class AccountController {
                                    @RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "10") int size,
                                    @RequestParam(defaultValue = "") String name) {
-            Page<Account> accountPage = accountService.getAccountsPaginated(page, size, name);
-            model.addAttribute("accountPage", accountPage);
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", accountPage.getTotalPages());
-            model.addAttribute("name", name);
-            return "account/viewAccounts";
+        Page<Account> accountPage = accountService.getAccountsPaginated(page, size, name);
+        addCommonModelAttributes(model, accountPage, name);
+        model.addAttribute("accountPage", accountPage);
+        return "account/viewAccounts";
     }
 
     @GetMapping("/create")
@@ -58,22 +53,20 @@ public class AccountController {
         if (result.hasErrors()) {
             return "account/createAccount";
         }
-
         try {
             accountService.createAccount(account.getAccountNumber(), account.getAccountHolderName(), account.getDateOfBirth());
             return "redirect:/accounts";
         } catch (DuplicateAccountNumberException e) {
-            model.addAttribute("errorMessage", "Account with this number already exists: " + e.getMessage());
-            return "account/createAccount";
-        } catch (RuntimeException e) {
-            model.addAttribute("errorMessage", "Error creating account: " + e.getMessage());
-            return "account/createAccount";
+            addErrorMessage(model, e.getMessage());
+        } catch (Exception e) {
+            addErrorMessage(model, "Unexpected error occurred: " + e.getMessage());
         }
+        return "account/createAccount";
     }
 
     @GetMapping("/update/{accountNumber}")
     public String showUpdateForm(@PathVariable String accountNumber, Model model) {
-        Account account = getAccountByNumber(accountNumber);
+        Account account = accountService.getAccountByNumber(accountNumber);
         model.addAttribute("account", account);
         return "account/updateAccount";
     }
@@ -85,10 +78,10 @@ public class AccountController {
         }
         try {
             accountService.updateAccount(account);
-            model.addAttribute("message", "Account updated successfully");
+            addSuccessMessage(model, "Account updated successfully");
             return "redirect:/accounts";
         } catch (RuntimeException | AccountNotFoundException e) {
-            model.addAttribute("errorMessage", "Error updating account: " + e.getMessage());
+            addErrorMessage(model, "Error updating account: " + e.getMessage());
             return "account/updateAccount";
         }
     }
@@ -100,30 +93,27 @@ public class AccountController {
             accountService.deleteAccount(accountNumber);
             return "redirect:/accounts";
         } catch (RuntimeException | AccountNotFoundException e) {
-            model.addAttribute("errorMessage", "Error deleting account: " + e.getMessage());
+            addErrorMessage(model, "Error deleting account: " + e.getMessage());
             return "redirect:/accounts";
         }
     }
 
     @GetMapping("/deposit/{accountNumber}")
     public String showDepositForm(@PathVariable String accountNumber, Model model) {
-        Account account = getAccountByNumber(accountNumber);
+        Account account = accountService.getAccountByNumber(accountNumber);
         model.addAttribute("accountNumber", accountNumber);
         model.addAttribute("accountHolderName", account.getAccountHolderName());
         return "transaction/deposit";
     }
 
     @PostMapping("/deposit")
-    public String deposit(
-            @RequestParam String accountNumber,
-            @RequestParam double amount,
-            Model model) {
+    public String deposit(@RequestParam String accountNumber, @RequestParam double amount, Model model) {
         try {
             double balance = accountService.deposit(accountNumber, amount);
-            model.addAttribute("message", "Deposit successful. New balance: " + balance);
+            addSuccessMessage(model, "Deposit successful. New balance: " + balance);
             return "transaction/depResult";
         } catch (RuntimeException | AccountNotFoundException e) {
-            model.addAttribute("errorMessage", "Error during deposit: " + e.getMessage());
+            addErrorMessage(model, "Error during deposit: " + e.getMessage());
             model.addAttribute("accountNumber", accountNumber);
             return "transaction/deposit";
         }
@@ -131,7 +121,7 @@ public class AccountController {
 
     @GetMapping("/withdraw/{accountNumber}")
     public String showWithdrawForm(@PathVariable String accountNumber, Model model) {
-        Account account = getAccountByNumber(accountNumber);
+        Account account = accountService.getAccountByNumber(accountNumber);
         model.addAttribute("accountNumber", accountNumber);
         model.addAttribute("accountHolderName", account.getAccountHolderName());
         model.addAttribute("balance", account.getBalance());
@@ -141,33 +131,23 @@ public class AccountController {
 
 
     @PostMapping("/withdraw")
-    public String withdraw(
-            @RequestParam String accountNumber,
-            @RequestParam double amount,
-            Model model) {
+    public String withdraw(@RequestParam String accountNumber, @RequestParam double amount, Model model) {
         try {
             double balance = accountService.withdraw(accountNumber, amount);
-            model.addAttribute("message", "Withdrawal successful. New balance: " + balance);
+            addSuccessMessage(model, "Withdrawal successful. New balance: " + balance);
             return "withdraw/withdrawResult";
         } catch (RuntimeException | AccountNotFoundException e) {
-            model.addAttribute("errorMessage", "Error during withdrawal: " + e.getMessage());
+            addErrorMessage(model, "Error during withdrawal: " + e.getMessage());
             model.addAttribute("accountNumber", accountNumber);
             return "withdraw/withdraw";
         }
     }
 
     @GetMapping("/withdrawals")
-    public String showWithdrawals(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            Model model) {
-
+    public String showWithdrawals(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Withdrawal> withdrawalPage = accountService.getWithdrawalsPaginated(page, size);
-
+        addCommonModelAttributes(model, withdrawalPage, null);
         model.addAttribute("withdrawalPage", withdrawalPage);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", withdrawalPage.getTotalPages());
-
         return "withdraw/withdrawals";
     }
 
@@ -186,7 +166,7 @@ public class AccountController {
 
     @GetMapping("/transfer/{fromAccountNumber}")
     public String showTransferForm(@PathVariable String fromAccountNumber, Model model) {
-        Account fromAccount = getAccountByNumber(fromAccountNumber);
+        Account fromAccount = accountService.getAccountByNumber(fromAccountNumber);
         List<Account> accounts = accountService.getAllAccounts();
         accounts.remove(fromAccount);
 
@@ -200,24 +180,20 @@ public class AccountController {
 
 
     @PostMapping("/transfer")
-    public String transfer(
-            @RequestParam String fromAccountNumber,
-            @RequestParam String toAccountNumber,
-            @RequestParam double amount,
-            Model model) {
+    public String transfer(@RequestParam String fromAccountNumber, @RequestParam String toAccountNumber, @RequestParam double amount, Model model) {
         try {
             accountService.transferByAccountNumbers(fromAccountNumber, toAccountNumber, amount);
-            model.addAttribute("message", "Transfer successful");
+            addSuccessMessage(model, "Transfer successful");
             return "transaction/transferResult";
         } catch (RuntimeException | AccountNotFoundException e) {
-            model.addAttribute("errorMessage", "Error during transfer: " + e.getMessage());
+            addErrorMessage(model, "Error during transfer: " + e.getMessage());
             return "transaction/transfer";
         }
     }
 
     @GetMapping("/profile/{accountNumber}")
     public String showProfile(@PathVariable String accountNumber, Model model) {
-        Account account = getAccountByNumber(accountNumber);
+        Account account = accountService.getAccountByNumber(accountNumber);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedCreatedDate = account.getCreatedDate().format(formatter);
 
@@ -249,15 +225,18 @@ public class AccountController {
             Model model) {
 
         Page<Transaction> transactionPage = accountService.getTransactionsPaginated(page, size);
-        model.addAttribute("transactionPage", transactionPage);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", transactionPage.getTotalPages());
+
+        addCommonModelAttributes(model, transactionPage, null);
 
         List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
         model.addAttribute("transactionTypes", transactionTypes);
 
+        model.addAttribute("transactions", transactionPage.getContent());
+        model.addAttribute("page", transactionPage);
+
         return "transaction/viewTransactions";
     }
+
 
     @GetMapping("/transactions/search")
     public String searchTransactions(
@@ -282,11 +261,6 @@ public class AccountController {
         model.addAttribute("transactionTypes", transactionTypes);
 
         return "transaction/viewTransactions";
-    }
-
-    private Account getAccountByNumber(String accountNumber) {
-        return accountService.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found for number: " + accountNumber));
     }
 
     @GetMapping("favicon.ico")
