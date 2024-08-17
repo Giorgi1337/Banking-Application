@@ -45,6 +45,13 @@
         </div>
     </form>
 
+    <!-- PDF Download Button -->
+    <div class="mb-4">
+        <a href="#" th:href="@{/transactions/pdf(page=${page.number}, size=${page.size}, fromDate=${param.fromDate}, toDate=${param.toDate}, minAmount=${param.minAmount}, maxAmount=${param.maxAmount}, transactionType=${param.transactionType})}"
+           class="btn btn-success"
+           th:attr="download='transactions_page_' + (${page.number + 1}) + '.pdf'">Download PDF</a>
+    </div>
+
     <!-- Transactions Table -->
     <div class="table-wrapper">
         <div class="table-responsive">

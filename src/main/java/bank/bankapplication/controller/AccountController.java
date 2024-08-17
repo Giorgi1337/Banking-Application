@@ -6,11 +6,18 @@ import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
+import com.itextpdf.text.DocumentException;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -150,6 +158,13 @@ public class AccountController extends BaseController {
         return "withdraw/withdrawals";
     }
 
+    @GetMapping("/withdrawals/pdf")
+    public ResponseEntity<InputStreamResource> downloadWithdrawalsPdf(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws DocumentException, IOException {
+
+        return accountService.generateWithdrawalsPdf(page, size);
+    }
 
     @GetMapping("/balance")
     public String showBalanceForm() {
@@ -234,6 +249,14 @@ public class AccountController extends BaseController {
         model.addAttribute("page", transactionPage);
 
         return "transaction/viewTransactions";
+    }
+
+    @GetMapping("/transactions/pdf")
+    public ResponseEntity<InputStreamResource> downloadTransactionsPdf(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws DocumentException, IOException {
+
+        return accountService.generateTransactionsPdf(page, size);
     }
 
 

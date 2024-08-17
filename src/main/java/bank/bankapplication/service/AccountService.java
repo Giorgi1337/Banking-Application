@@ -7,19 +7,32 @@ import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.repository.AccountRepository;
 import bank.bankapplication.repository.TransactionRepository;
 import bank.bankapplication.repository.WithdrawalRepository;
+import bank.bankapplication.utils.PdfUtils;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.io.*;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -202,5 +215,47 @@ public class AccountService {
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
+    }
+
+    public ResponseEntity<InputStreamResource> generateWithdrawalsPdf(int page, int size) throws DocumentException, IOException {
+        // Fetch only the withdrawals for the specified page and size
+        List<Withdrawal> withdrawals = withdrawalRepository.findAll(PageRequest.of(page, size)).getContent();
+        List<List<String>> rows = withdrawals.stream()
+                .map(w -> List.of(
+                        w.getAccount().getAccountHolderName(),
+                        String.format("$%.2f", w.getAmount()),
+                        w.getWithdrawDate().toString()
+                ))
+                .collect(Collectors.toList());
+
+        String[] headers = {"Account Holder Name", "Amount", "Date"};
+        String fileName = "withdrawals_report_page_" + page + ".pdf";
+
+        InputStreamResource pdf = PdfUtils.generatePdf("Withdrawals Report", headers, rows, fileName);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    public ResponseEntity<InputStreamResource> generateTransactionsPdf(int page, int size) throws DocumentException, IOException {
+        // Fetch transactions for the specified page and size
+        List<Transaction> transactions = transactionRepository.findAll(PageRequest.of(page, size)).getContent();
+        List<List<String>> rows = transactions.stream()
+                .map(t -> List.of(
+                        t.getFromAccountHolderName() != null ? t.getFromAccountHolderName() : "N/A",
+                        t.getToAccountHolderName(),
+                        t.getTransactionType(),
+                        String.format("%.1f", t.getAmount()),
+                        t.getTransactionDate().toString()
+                ))
+                .collect(Collectors.toList());
+
+        String[] headers = {"From Account Holder", "To Account Holder", "Type", "Amount", "Date"};
+        String fileName = "transactions_report_page_" + page + ".pdf";
+
+        InputStreamResource pdf = PdfUtils.generatePdf("Transactions Report", headers, rows, fileName);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }
