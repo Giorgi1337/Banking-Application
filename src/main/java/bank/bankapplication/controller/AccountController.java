@@ -7,6 +7,7 @@ import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
 import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,14 @@ import java.util.stream.Collectors;
 
 
 @Controller
-@RequiredArgsConstructor
 public class AccountController extends BaseController {
 
     private final AccountService accountService;
+
+    public AccountController(AccountService accountService) {
+        super(accountService);
+        this.accountService = accountService;
+    }
 
     @GetMapping("/accounts")
     public String viewAccountsPage(Model model,
@@ -100,9 +105,7 @@ public class AccountController extends BaseController {
 
     @GetMapping("/deposit/{accountNumber}")
     public String showDepositForm(@PathVariable String accountNumber, Model model) {
-        Account account = accountService.getAccountByNumber(accountNumber);
-        model.addAttribute("accountNumber", accountNumber);
-        model.addAttribute("accountHolderName", account.getAccountHolderName());
+        populateAccountDetails(accountNumber, model);
         return "transaction/deposit";
     }
 
@@ -121,11 +124,7 @@ public class AccountController extends BaseController {
 
     @GetMapping("/withdraw/{accountNumber}")
     public String showWithdrawForm(@PathVariable String accountNumber, Model model) {
-        Account account = accountService.getAccountByNumber(accountNumber);
-        model.addAttribute("accountNumber", accountNumber);
-        model.addAttribute("accountHolderName", account.getAccountHolderName());
-        model.addAttribute("balance", account.getBalance());
-
+        populateAccountDetails(accountNumber, model);
         return "withdraw/withdraw";
     }
 
