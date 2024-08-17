@@ -10,6 +10,8 @@ import bank.bankapplication.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -155,9 +157,17 @@ public class AccountController {
     }
 
     @GetMapping("/withdrawals")
-    public String showWithdrawals(Model model) {
-        List<Withdrawal> withdrawals = accountService.getAllWithdrawals();
-        model.addAttribute("withdrawals", withdrawals);
+    public String showWithdrawals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Page<Withdrawal> withdrawalPage = accountService.getWithdrawalsPaginated(page, size);
+
+        model.addAttribute("withdrawalPage", withdrawalPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", withdrawalPage.getTotalPages());
+
         return "withdraw/withdrawals";
     }
 
@@ -233,9 +243,15 @@ public class AccountController {
     }
 
     @GetMapping("/transactions")
-    public String viewAllTransactions(Model model) {
-        List<Transaction> transactions = accountService.getAllTransactions();
-        model.addAttribute("transactions", transactions);
+    public String viewAllTransactions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Page<Transaction> transactionPage = accountService.getTransactionsPaginated(page, size);
+        model.addAttribute("transactionPage", transactionPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", transactionPage.getTotalPages());
 
         List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
         model.addAttribute("transactionTypes", transactionTypes);
@@ -250,17 +266,21 @@ public class AccountController {
             @RequestParam(required = false) Double minAmount,
             @RequestParam(required = false) Double maxAmount,
             @RequestParam(required = false) String transactionType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        List<Transaction> transactions = accountService.searchTransactions(
-                fromDate != null ? LocalDate.parse(fromDate) : null,
-                toDate != null ? LocalDate.parse(toDate) : null,
-                minAmount,
-                maxAmount,
-                transactionType
-        );
+        LocalDate from = fromDate != null && !fromDate.isEmpty() ? LocalDate.parse(fromDate) : null;
+        LocalDate to = toDate != null && !toDate.isEmpty() ? LocalDate.parse(toDate) : null;
 
-        model.addAttribute("transactions", transactions);
+        Page<Transaction> transactionPage = accountService.searchTransactionsPaginated(from, to, minAmount, maxAmount, transactionType, page, size);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", transactionPage.getTotalPages());
+
+
+        List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
+        model.addAttribute("transactionTypes", transactionTypes);
+
         return "transaction/viewTransactions";
     }
 

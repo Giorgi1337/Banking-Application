@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.login.AccountNotFoundException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -76,12 +77,14 @@ public class AccountService {
         return fromTransactions;
     }
 
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+    public Page<Transaction> getTransactionsPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("transactionDate").descending());
+        return transactionRepository.findAll(pageable);
     }
 
-    public List<Withdrawal> getAllWithdrawals() {
-        return withdrawalRepository.findAll();
+    public Page<Withdrawal> getWithdrawalsPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("account.accountHolderName").ascending());
+        return withdrawalRepository.findAll(pageable);
     }
 
     @Transactional
@@ -178,8 +181,19 @@ public class AccountService {
         transactionRepository.save(transaction);
     }
 
-    public List<Transaction> searchTransactions(LocalDate fromDate, LocalDate toDate, Double minAmount, Double maxAmount, String transactionType) {
-        return transactionRepository.findTransactions(fromDate, toDate, minAmount, maxAmount, transactionType);
+    public Page<Transaction> searchTransactionsPaginated(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Double minAmount,
+            Double maxAmount,
+            String transactionType,
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("transactionDate").descending());
+
+        return transactionRepository.findTransactions(
+                fromDate, toDate, minAmount, maxAmount, transactionType, pageable);
     }
 
     public List<Account> getAllAccounts() {
