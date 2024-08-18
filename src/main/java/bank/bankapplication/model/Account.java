@@ -26,7 +26,7 @@ public class Account {
 
     @Column(unique = true, nullable = false)
     @Pattern(regexp = "\\d+", message = "Account number length must be 6 and numeric")
-    @Size(min = 6, max = 6)
+    @Size(min = 6, max = 6, message = "Account number length must be 6 and numeric")
     private String accountNumber;
 
     @Column(nullable = false)

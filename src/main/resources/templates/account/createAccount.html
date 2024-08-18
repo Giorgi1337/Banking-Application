@@ -39,7 +39,7 @@
 
         <div class="mb-3">
             <label for="balance" class="form-label">Initial Deposit</label>
-            <input type="number" step="0.01" id="balance" th:field="*{balance}" class="form-control" required/>
+            <input type="number" step="0.01" id="balance" th:field="*{balance}" class="form-control" readonly/>
             <div class="form-text text-danger" th:if="${#fields.hasErrors('balance')}" th:errors="*{balance}"></div>
         </div>
 

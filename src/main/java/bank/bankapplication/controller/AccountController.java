@@ -86,11 +86,17 @@ public class AccountController extends BaseController {
 
     @PostMapping("/update")
     public String updateAccount(@Valid @ModelAttribute Account account, BindingResult result, Model model) {
+        System.out.println("Account Holder Name: " + account.getAccountHolderName());
+
         if (result.hasErrors()) {
+            System.out.println("Validation Errors: " + result.getAllErrors());
             return "account/updateAccount";
         }
+
         try {
-            accountService.updateAccount(account);
+            Account existingAccount = accountService.getAccountByNumber(account.getAccountNumber());
+            existingAccount.setAccountHolderName(account.getAccountHolderName());
+            accountService.updateAccount(existingAccount);
             addSuccessMessage(model, "Account updated successfully");
             return "redirect:/accounts";
         } catch (RuntimeException | AccountNotFoundException e) {
@@ -98,6 +104,7 @@ public class AccountController extends BaseController {
             return "account/updateAccount";
         }
     }
+
 
 
     @GetMapping("/delete/{accountNumber}")
