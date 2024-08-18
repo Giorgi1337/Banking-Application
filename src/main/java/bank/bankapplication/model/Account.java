@@ -1,5 +1,6 @@
 package bank.bankapplication.model;
 
+import bank.bankapplication.validation.MaxAge;
 import bank.bankapplication.validation.MinAge;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
@@ -37,7 +38,8 @@ public class Account {
 
     @Column(nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @MinAge() // Minimum age requirement
+    @MinAge // Minimum age requirement
+    @MaxAge // Maxim age
     private LocalDate dateOfBirth;
 
     @Column(nullable = false, updatable = false)
