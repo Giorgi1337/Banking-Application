@@ -11,7 +11,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.ValidationException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -67,9 +67,18 @@ public class AccountController extends BaseController {
             return "account/createAccount";
         }
         try {
-            accountService.createAccount(account.getAccountNumber(), account.getAccountHolderName(), account.getDateOfBirth());
+            accountService.createAccount(
+                    account.getAccountNumber(),
+                    account.getAccountHolderName(),
+                    account.getDateOfBirth(),
+                    account.getEmailAddress(),
+                    account.getPhoneNumber(),
+                    account.getAddress(),
+                    account.getAccountType(),
+                    account.getStatus()
+            );
             return "redirect:/accounts";
-        } catch (DuplicateAccountNumberException e) {
+        } catch (ValidationException e) {
             addErrorMessage(model, e.getMessage());
         } catch (Exception e) {
             addErrorMessage(model, "Unexpected error occurred: " + e.getMessage());
@@ -96,10 +105,17 @@ public class AccountController extends BaseController {
         try {
             Account existingAccount = accountService.getAccountByNumber(account.getAccountNumber());
             existingAccount.setAccountHolderName(account.getAccountHolderName());
+            existingAccount.setEmailAddress(account.getEmailAddress());
+            existingAccount.setPhoneNumber(account.getPhoneNumber());
+            existingAccount.setAddress(account.getAddress());
+            existingAccount.setAccountType(account.getAccountType());
+            existingAccount.setStatus(account.getStatus());
+
             accountService.updateAccount(existingAccount);
+
             addSuccessMessage(model, "Account updated successfully");
             return "redirect:/accounts";
-        } catch (RuntimeException | AccountNotFoundException e) {
+        } catch (AccountNotFoundException | RuntimeException e) {
             addErrorMessage(model, "Error updating account: " + e.getMessage());
             return "account/updateAccount";
         }
@@ -198,7 +214,6 @@ public class AccountController extends BaseController {
 
         return "transaction/transfer";
     }
-
 
     @PostMapping("/transfer")
     public String transfer(@RequestParam String fromAccountNumber, @RequestParam String toAccountNumber, @RequestParam double amount, Model model) {

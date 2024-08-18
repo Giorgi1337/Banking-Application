@@ -9,9 +9,6 @@ import bank.bankapplication.repository.TransactionRepository;
 import bank.bankapplication.repository.WithdrawalRepository;
 import bank.bankapplication.utils.PdfUtils;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -19,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.security.auth.login.AccountNotFoundException;
 import java.io.*;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,14 +43,25 @@ public class AccountService {
         return accountRepository.findByAccountHolderNameContaining(name, pageable);
     }
 
-    public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth) {
+    public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth,
+                                 String emailAddress, String phoneNumber, String address,
+                                 String accountType, String status) {
+
         if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
             throw new ValidationException("Account with the same account number already exists.");
         }
+
         Account account = new Account();
-        account.setAccountHolderName(accountHolderName);
         account.setAccountNumber(accountNumber);
+        account.setAccountHolderName(accountHolderName);
         account.setDateOfBirth(dateOfBirth);
+        account.setEmailAddress(emailAddress);
+        account.setPhoneNumber(phoneNumber);
+        account.setAddress(address);
+        account.setAccountType(accountType);
+        account.setStatus(status);
+        account.setBalance(0.0); // Initial balance
+
         return accountRepository.save(account);
     }
 
@@ -144,7 +149,26 @@ public class AccountService {
     public Account updateAccount(Account updatedAccount) throws AccountNotFoundException {
         Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found."));
-        existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
+
+        if (updatedAccount.getAccountHolderName() != null) {
+            existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
+        }
+        if (updatedAccount.getEmailAddress() != null) {
+            existingAccount.setEmailAddress(updatedAccount.getEmailAddress());
+        }
+        if (updatedAccount.getPhoneNumber() != null) {
+            existingAccount.setPhoneNumber(updatedAccount.getPhoneNumber());
+        }
+        if (updatedAccount.getAddress() != null) {
+            existingAccount.setAddress(updatedAccount.getAddress());
+        }
+        if (updatedAccount.getAccountType() != null) {
+            existingAccount.setAccountType(updatedAccount.getAccountType());
+        }
+        if (updatedAccount.getStatus() != null) {
+            existingAccount.setStatus(updatedAccount.getStatus());
+        }
+
         return accountRepository.save(existingAccount);
     }
 
