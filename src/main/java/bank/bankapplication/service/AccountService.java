@@ -25,7 +25,6 @@ import javax.security.auth.login.AccountNotFoundException;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,9 +42,9 @@ public class AccountService {
         return accountRepository.findByAccountHolderNameContaining(name, pageable);
     }
 
-    public Account createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth,
-                                 String emailAddress, String phoneNumber, String address,
-                                 String accountType, String status) {
+    public void createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth,
+                              String emailAddress, String phoneNumber, String address,
+                              String accountType, String status) {
 
         if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
             throw new ValidationException("Account with the same account number already exists.");
@@ -62,7 +61,7 @@ public class AccountService {
         account.setStatus(status);
         account.setBalance(0.0); // Initial balance
 
-        return accountRepository.save(account);
+        accountRepository.save(account);
     }
 
     @Transactional
@@ -136,17 +135,13 @@ public class AccountService {
         return account.getBalance();
     }
 
-    public Optional<Account> findByAccountNumber(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber);
-    }
-
     public Account getAccountByNumber(String accountNumber) {
-        return findByAccountNumber(accountNumber)
+        return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found for number: " + accountNumber));
     }
 
     @Transactional
-    public Account updateAccount(Account updatedAccount) throws AccountNotFoundException {
+    public void updateAccount(Account updatedAccount) throws AccountNotFoundException {
         Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
                 .orElseThrow(() -> new AccountNotFoundException("Account not found."));
 
@@ -169,7 +164,7 @@ public class AccountService {
             existingAccount.setStatus(updatedAccount.getStatus());
         }
 
-        return accountRepository.save(existingAccount);
+        accountRepository.save(existingAccount);
     }
 
     @Transactional

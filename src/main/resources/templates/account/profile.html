@@ -28,6 +28,11 @@
                 <strong>Date of Birth:</strong> <span th:text="${account.dateOfBirth}"></span><br>
                 <strong>Balance:</strong> $<span th:text="${account.balance}"></span><br>
                 <strong>Created Date:</strong> <span th:text="${formattedCreatedDate}"></span><br>
+                <strong>Email Address:</strong> <span th:text="${account.emailAddress}"></span><br>
+                <strong>Phone Number:</strong> <span th:text="${account.phoneNumber}"></span><br>
+                <strong>Address:</strong> <span th:text="${account.address}"></span><br>
+                <strong>Account Type:</strong> <span th:text="${account.accountType}"></span><br>
+                <strong>Status:</strong> <span th:text="${account.status}"></span><br>
             </p>
             <a href="#" th:href="@{/accounts}" class="btn btn-primary">Back to Accounts</a>
             <a th:href="@{/transactions/{accountHolderName}(accountHolderName=${account.accountHolderName})}" class="btn btn-custom-secondary">
