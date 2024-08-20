@@ -6,6 +6,7 @@ import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
+import bank.bankapplication.utils.PdfUtils;
 import com.itextpdf.text.DocumentException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -271,6 +272,13 @@ public class AccountController extends BaseController {
         model.addAttribute("page", transactionPage);
 
         return "transaction/viewTransactions";
+    }
+
+    @GetMapping("/transactions/{accountHolderName}/pdf")
+    public ResponseEntity<InputStreamResource> downloadTransactionsPdfByHolder(
+            @PathVariable String accountHolderName) throws DocumentException, IOException {
+
+        return accountService.generateTransactionsPdfByHolder(accountHolderName);
     }
 
     @GetMapping("/transactions/pdf")

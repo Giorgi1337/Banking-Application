@@ -36,7 +36,12 @@
             </tbody>
         </table>
     </div>
-    <a class="btn btn-primary" href="/accounts">Back to Accounts</a>
+    <div class="d-flex justify-content-between">
+        <a class="btn btn-primary" href="/accounts">Back to Accounts</a>
+        <a class="btn btn-secondary" th:href="@{/transactions/{accountHolderName}/pdf(accountHolderName=${accountHolderName})}">
+            Download PDF
+        </a>
+    </div>
 </div>
 </body>
 </html>

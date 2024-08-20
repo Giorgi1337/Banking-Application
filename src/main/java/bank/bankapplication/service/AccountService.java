@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 
 @Service
 @RequiredArgsConstructor
@@ -234,6 +237,37 @@ public class AccountService {
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
+    }
+
+    public ResponseEntity<InputStreamResource> generateTransactionsPdfByHolder(String accountHolderName) throws DocumentException, IOException {
+
+        List<Transaction> fromTransactions = transactionRepository.findByFromAccountHolderName(accountHolderName);
+        List<Transaction> toTransactions = transactionRepository.findByToAccountHolderName(accountHolderName);
+
+        // Combine both lists
+        fromTransactions.addAll(toTransactions);
+
+        // Convert transactions to List<List<String>>
+        List<List<String>> rows = fromTransactions.stream()
+                .map(t -> List.of(
+                        t.getFromAccountHolderName(),
+                        t.getToAccountHolderName(),
+                        t.getTransactionType(),
+                        String.format("$%.2f", t.getAmount()),
+                        t.getTransactionDate().toString()
+                ))
+                .collect(Collectors.toList());
+
+        String[] headers = {"From", "To", "Type", "Amount", "Date"};
+        String title = "Transactions for " + accountHolderName;
+        String fileName = "transactions_" + accountHolderName + ".pdf";
+
+        InputStreamResource pdfStream = PdfUtils.generatePdf(title, headers, rows, fileName);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfStream);
     }
 
     public ResponseEntity<InputStreamResource> generateWithdrawalsPdf(int page, int size) throws DocumentException, IOException {
