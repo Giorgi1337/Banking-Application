@@ -1,24 +1,17 @@
 package bank.bankapplication.controller;
 
-import bank.bankapplication.exception.DuplicateAccountNumberException;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Transaction;
 import bank.bankapplication.model.Withdrawal;
 import bank.bankapplication.service.AccountService;
 
-import bank.bankapplication.utils.PdfUtils;
 import com.itextpdf.text.DocumentException;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import jakarta.validation.ValidationException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.security.auth.login.AccountNotFoundException;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Controller
@@ -69,14 +60,9 @@ public class AccountController extends BaseController {
         }
         try {
             accountService.createAccount(
-                    account.getAccountNumber(),
-                    account.getAccountHolderName(),
-                    account.getDateOfBirth(),
-                    account.getEmailAddress(),
-                    account.getPhoneNumber(),
-                    account.getAddress(),
-                    account.getAccountType(),
-                    account.getStatus()
+                    account.getAccountNumber(), account.getAccountHolderName(), account.getDateOfBirth(),
+                    account.getEmailAddress(), account.getPhoneNumber(), account.getAddress(),
+                    account.getAccountType(), account.getStatus()
             );
             return "redirect:/accounts";
         } catch (ValidationException e) {
@@ -88,7 +74,7 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping("/update/{accountNumber}")
-    public String showUpdateForm(@PathVariable String accountNumber, Model model) {
+    public String showUpdateForm(@PathVariable String accountNumber, Model model) throws AccountNotFoundException {
         Account account = accountService.getAccountByNumber(accountNumber);
         model.addAttribute("account", account);
         return "account/updateAccount";
@@ -96,24 +82,13 @@ public class AccountController extends BaseController {
 
     @PostMapping("/update")
     public String updateAccount(@Valid @ModelAttribute Account account, BindingResult result, Model model) {
-        System.out.println("Account Holder Name: " + account.getAccountHolderName());
-
         if (result.hasErrors()) {
-            System.out.println("Validation Errors: " + result.getAllErrors());
             return "account/updateAccount";
         }
-
         try {
             Account existingAccount = accountService.getAccountByNumber(account.getAccountNumber());
-            existingAccount.setAccountHolderName(account.getAccountHolderName());
-            existingAccount.setEmailAddress(account.getEmailAddress());
-            existingAccount.setPhoneNumber(account.getPhoneNumber());
-            existingAccount.setAddress(account.getAddress());
-            existingAccount.setAccountType(account.getAccountType());
-            existingAccount.setStatus(account.getStatus());
-
+            updateAccountDetails(existingAccount, account);
             accountService.updateAccount(existingAccount);
-
             addSuccessMessage(model, "Account updated successfully");
             return "redirect:/accounts";
         } catch (AccountNotFoundException | RuntimeException e) {
@@ -121,8 +96,6 @@ public class AccountController extends BaseController {
             return "account/updateAccount";
         }
     }
-
-
 
     @GetMapping("/delete/{accountNumber}")
     public String deleteAccount(@PathVariable String accountNumber, Model model) {
@@ -136,7 +109,7 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping("/deposit/{accountNumber}")
-    public String showDepositForm(@PathVariable String accountNumber, Model model) {
+    public String showDepositForm(@PathVariable String accountNumber, Model model) throws AccountNotFoundException {
         populateAccountDetails(accountNumber, model);
         return "transaction/deposit";
     }
@@ -155,11 +128,10 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping("/withdraw/{accountNumber}")
-    public String showWithdrawForm(@PathVariable String accountNumber, Model model) {
+    public String showWithdrawForm(@PathVariable String accountNumber, Model model) throws AccountNotFoundException {
         populateAccountDetails(accountNumber, model);
         return "withdraw/withdraw";
     }
-
 
     @PostMapping("/withdraw")
     public String withdraw(@RequestParam String accountNumber, @RequestParam double amount, Model model) {
@@ -203,7 +175,7 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping("/transfer/{fromAccountNumber}")
-    public String showTransferForm(@PathVariable String fromAccountNumber, Model model) {
+    public String showTransferForm(@PathVariable String fromAccountNumber, Model model) throws AccountNotFoundException {
         Account fromAccount = accountService.getAccountByNumber(fromAccountNumber);
         List<Account> accounts = accountService.getAllAccounts();
         accounts.remove(fromAccount);
@@ -229,16 +201,12 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping("/profile/{accountNumber}")
-    public String showProfile(@PathVariable String accountNumber, Model model) {
+    public String showProfile(@PathVariable String accountNumber, Model model) throws AccountNotFoundException {
         Account account = accountService.getAccountByNumber(accountNumber);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedCreatedDate = account.getCreatedDate().format(formatter);
+        LocalDateTime createdDateTime = account.getCreatedDate();
+        String formattedCreatedDate = formatDate(createdDateTime);
 
-        List<Transaction> recentTransactions = accountService.getTransactionsByAccountHolderName(account.getAccountHolderName())
-                .stream()
-                .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate())) // Sort by date descending
-                .limit(3) // Get the last 3 transactions
-                .collect(Collectors.toList());
+        List<Transaction> recentTransactions = getRecentTransactions(account.getAccountHolderName());
 
         model.addAttribute("account", account);
         model.addAttribute("formattedCreatedDate", formattedCreatedDate);
@@ -264,10 +232,7 @@ public class AccountController extends BaseController {
         Page<Transaction> transactionPage = accountService.getTransactionsPaginated(page, size);
 
         addCommonModelAttributes(model, transactionPage, null);
-
-        List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
-        model.addAttribute("transactionTypes", transactionTypes);
-
+        model.addAttribute("transactionTypes", List.of("Deposit", "Withdrawal", "Transfer"));
         model.addAttribute("transactions", transactionPage.getContent());
         model.addAttribute("page", transactionPage);
 
@@ -301,17 +266,12 @@ public class AccountController extends BaseController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        LocalDate from = fromDate != null && !fromDate.isEmpty() ? LocalDate.parse(fromDate) : null;
-        LocalDate to = toDate != null && !toDate.isEmpty() ? LocalDate.parse(toDate) : null;
-
+        LocalDate from = parseDate(fromDate);
+        LocalDate to = parseDate(toDate);
         Page<Transaction> transactionPage = accountService.searchTransactionsPaginated(from, to, minAmount, maxAmount, transactionType, page, size);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transactionPage.getTotalPages());
-
-
-        List<String> transactionTypes = List.of("Deposit", "Withdrawal", "Transfer");
-        model.addAttribute("transactionTypes", transactionTypes);
-
+        model.addAttribute("transactionTypes", List.of("Deposit", "Withdrawal", "Transfer"));
         return "transaction/viewTransactions";
     }
 

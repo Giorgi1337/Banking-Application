@@ -13,37 +13,37 @@
 <div class="container mt-4">
     <h1 class="mb-4">All Transactions</h1>
 
-    <!-- Filter Form -->
-    <form th:action="@{/transactions}" method="get" class="mb-4">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label for="fromDate" class="form-label">From Date</label>
-                <input type="date" id="fromDate" name="fromDate" class="form-control" th:value="${param.fromDate}">
-            </div>
-            <div class="col-md-3">
-                <label for="toDate" class="form-label">To Date</label>
-                <input type="date" id="toDate" name="toDate" class="form-control" th:value="${param.toDate}">
-            </div>
-            <div class="col-md-3">
-                <label for="minAmount" class="form-label">Min Amount</label>
-                <input type="number" id="minAmount" name="minAmount" class="form-control" step="0.01" th:value="${param.minAmount}">
-            </div>
-            <div class="col-md-3">
-                <label for="maxAmount" class="form-label">Max Amount</label>
-                <input type="number" id="maxAmount" name="maxAmount" class="form-control" step="0.01" th:value="${param.maxAmount}">
-            </div>
-            <div class="col-md-3">
-                <label for="transactionType" class="form-label">Transaction Type</label>
-                <select id="transactionType" name="transactionType" class="form-select">
-                    <option value="" th:selected="${param.transactionType == ''}">All</option>
-                    <option th:each="type : ${transactionTypes}" th:value="${type}" th:text="${type}" th:selected="${type == param.transactionType}"></option>
-                </select>
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-        </div>
-    </form>
+<!--    &lt;!&ndash; Filter Form &ndash;&gt;-->
+<!--    <form th:action="@{/transactions}" method="get" class="mb-4">-->
+<!--        <div class="row g-3">-->
+<!--            <div class="col-md-3">-->
+<!--                <label for="fromDate" class="form-label">From Date</label>-->
+<!--                <input type="date" id="fromDate" name="fromDate" class="form-control" th:value="${param.fromDate}">-->
+<!--            </div>-->
+<!--            <div class="col-md-3">-->
+<!--                <label for="toDate" class="form-label">To Date</label>-->
+<!--                <input type="date" id="toDate" name="toDate" class="form-control" th:value="${param.toDate}">-->
+<!--            </div>-->
+<!--            <div class="col-md-3">-->
+<!--                <label for="minAmount" class="form-label">Min Amount</label>-->
+<!--                <input type="number" id="minAmount" name="minAmount" class="form-control" step="0.01" th:value="${param.minAmount}">-->
+<!--            </div>-->
+<!--            <div class="col-md-3">-->
+<!--                <label for="maxAmount" class="form-label">Max Amount</label>-->
+<!--                <input type="number" id="maxAmount" name="maxAmount" class="form-control" step="0.01" th:value="${param.maxAmount}">-->
+<!--            </div>-->
+<!--            <div class="col-md-3">-->
+<!--                <label for="transactionType" class="form-label">Transaction Type</label>-->
+<!--                <select id="transactionType" name="transactionType" class="form-select">-->
+<!--                    <option value="" th:selected="${param.transactionType == ''}">All</option>-->
+<!--                    <option th:each="type : ${transactionTypes}" th:value="${type}" th:text="${type}" th:selected="${type == param.transactionType}"></option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--            <div class="col-md-3 d-flex align-items-end">-->
+<!--                <button type="submit" class="btn btn-primary">Search</button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </form>-->
 
     <!-- PDF Download Button -->
     <div class="mb-4">

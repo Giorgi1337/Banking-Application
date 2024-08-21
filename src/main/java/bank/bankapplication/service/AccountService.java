@@ -28,7 +28,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hibernate.type.descriptor.java.JdbcDateJavaType.DATE_FORMAT;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +48,7 @@ public class AccountService {
                               String emailAddress, String phoneNumber, String address,
                               String accountType, String status) {
 
-        if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
-            throw new ValidationException("Account with the same account number already exists.");
-        }
+        validateAccountNumber(accountNumber);
 
         Account account = new Account();
         account.setAccountNumber(accountNumber);
@@ -69,23 +66,13 @@ public class AccountService {
 
     @Transactional
     public double deposit(String accountNumber, double amount) throws AccountNotFoundException {
-        if (amount <= 0) {
-            throw new InvalidAmountException("Deposit amount must be a positive number.");
-        }
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
+        Account account = getAccountOrThrow(accountNumber);
+        validateAmount(amount);
 
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
 
-        // Record the transaction
-        Transaction transaction = new Transaction();
-        transaction.setFromAccountHolderName("N/A");
-        transaction.setToAccountHolderName(account.getAccountHolderName());
-        transaction.setTransactionType("Deposit");
-        transaction.setAmount(amount);
-        transactionRepository.save(transaction);
-
+        recordTransaction("N/A", account.getAccountHolderName(), "Deposit", amount);
         return account.getBalance();
     }
 
@@ -108,46 +95,156 @@ public class AccountService {
 
     @Transactional
     public double withdraw(String accountNumber, double amount) throws AccountNotFoundException {
-        if (amount <= 0) {
-            throw new InvalidAmountException("Withdrawal amount must be a positive number.");
-        }
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
-
-        if (account.getBalance() - amount < 0) {
-            throw new InvalidAmountException("Insufficient funds.");
-        }
+        Account account = getAccountOrThrow(accountNumber);
+        validateAmount(amount);
+        validateSufficientFunds(account, amount);
 
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
 
-        // Record the transaction
-        Transaction transaction = new Transaction();
-        transaction.setFromAccountHolderName(account.getAccountHolderName());
-        transaction.setToAccountHolderName("N/A");
-        transaction.setTransactionType("Withdrawal");
-        transaction.setAmount(amount);
-        transactionRepository.save(transaction);
-
-        // Save withdrawal history
-        Withdrawal withdrawal = new Withdrawal();
-        withdrawal.setAccount(account);
-        withdrawal.setAmount(amount);
-        withdrawalRepository.save(withdrawal);
+        recordTransaction(account.getAccountHolderName(), "N/A", "Withdrawal", amount);
+        saveWithdrawal(account, amount);
 
         return account.getBalance();
     }
 
-    public Account getAccountByNumber(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found for number: " + accountNumber));
+    public Account getAccountByNumber(String accountNumber) throws AccountNotFoundException {
+        return getAccountOrThrow(accountNumber);
     }
 
     @Transactional
     public void updateAccount(Account updatedAccount) throws AccountNotFoundException {
-        Account existingAccount = accountRepository.findByAccountNumber(updatedAccount.getAccountNumber())
-                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
+        Account existingAccount = getAccountOrThrow(updatedAccount.getAccountNumber());
 
+        updateNonNullFields(existingAccount, updatedAccount);
+        accountRepository.save(existingAccount);
+    }
+
+    @Transactional
+    public void deleteAccount(String accountNumber) throws AccountNotFoundException {
+        Account account = getAccountOrThrow(accountNumber);
+        withdrawalRepository.deleteAll(withdrawalRepository.findByAccount(account));
+        accountRepository.delete(account);
+    }
+
+    public double checkBalance(String accountNumber) throws AccountNotFoundException {
+        Account account = getAccountOrThrow(accountNumber);
+        return account.getBalance();
+    }
+
+    @Transactional
+    public void transferByAccountNumbers(String fromAccountNumber, String toAccountNumber, double amount) throws AccountNotFoundException {
+        validateAmount(amount);
+        Account fromAccount = getAccountOrThrow(fromAccountNumber);
+        Account toAccount = getAccountOrThrow(toAccountNumber);
+
+        if (fromAccount.equals(toAccount)) {
+            throw new InvalidAmountException("Cannot transfer to the same account.");
+        }
+        validateSufficientFunds(fromAccount, amount);
+
+        fromAccount.setBalance(fromAccount.getBalance() - amount);
+        toAccount.setBalance(toAccount.getBalance() + amount);
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+
+        recordTransaction(fromAccount.getAccountHolderName(), toAccount.getAccountHolderName(), "Transfer", amount);
+    }
+
+    public Page<Transaction> searchTransactionsPaginated(
+            LocalDate fromDate,
+            LocalDate toDate,
+            Double minAmount,
+            Double maxAmount,
+            String transactionType,
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("transactionDate").descending());
+        return transactionRepository.findTransactions(fromDate, toDate, minAmount, maxAmount, transactionType, pageable);
+    }
+
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+
+    public ResponseEntity<InputStreamResource> generateTransactionsPdfByHolder(String accountHolderName) throws DocumentException, IOException {
+        List<Transaction> transactions = getTransactionsByAccountHolderName(accountHolderName);
+        List<List<String>> rows = mapTransactionsToRows(transactions);
+
+        return generatePdfResponse("Transactions for " + accountHolderName,
+                new String[]{"From", "To", "Type", "Amount", "Date"},
+                rows,
+                "transactions_" + accountHolderName + ".pdf");
+    }
+
+    public ResponseEntity<InputStreamResource> generateWithdrawalsPdf(int page, int size) throws DocumentException, IOException {
+        List<Withdrawal> withdrawals = withdrawalRepository.findAll(PageRequest.of(page, size)).getContent();
+        List<List<String>> rows = withdrawals.stream()
+                .map(w -> List.of(
+                        w.getAccount().getAccountHolderName(),
+                        String.format("$%.2f", w.getAmount()),
+                        w.getWithdrawDate().toString()
+                ))
+                .collect(Collectors.toList());
+
+        return generatePdfResponse("Withdrawals Report",
+                new String[]{"Account Holder Name", "Amount", "Date"},
+                rows,
+                "withdrawals_report_page_" + page + ".pdf");
+    }
+
+    public ResponseEntity<InputStreamResource> generateTransactionsPdf(int page, int size) throws DocumentException, IOException {
+        List<Transaction> transactions = transactionRepository.findAll(PageRequest.of(page, size)).getContent();
+        List<List<String>> rows = mapTransactionsToRows(transactions);
+
+        return generatePdfResponse("Transactions Report",
+                new String[]{"From Account Holder", "To Account Holder", "Type", "Amount", "Date"},
+                rows,
+                "transactions_report_page_" + page + ".pdf");
+    }
+
+    private void validateAccountNumber(String accountNumber) {
+        if (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
+            throw new ValidationException("Account with the same account number already exists.");
+        }
+    }
+
+    private void validateAmount(double amount) {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Amount must be a positive number.");
+        }
+    }
+
+    private void validateSufficientFunds(Account account, double amount) {
+        if (account.getBalance() - amount < 0) {
+            throw new InvalidAmountException("Insufficient funds.");
+        }
+    }
+
+    private Account getAccountOrThrow(String accountNumber) throws AccountNotFoundException {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
+    }
+
+    private void recordTransaction(String from, String to, String type, double amount) {
+        Transaction transaction = new Transaction();
+        transaction.setFromAccountHolderName(from);
+        transaction.setToAccountHolderName(to);
+        transaction.setTransactionType(type);
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
+    }
+
+    private void saveWithdrawal(Account account, double amount) {
+        Withdrawal withdrawal = new Withdrawal();
+        withdrawal.setAccount(account);
+        withdrawal.setAmount(amount);
+        withdrawalRepository.save(withdrawal);
+    }
+
+    private void updateNonNullFields(Account existingAccount, Account updatedAccount) {
         if (updatedAccount.getAccountHolderName() != null) {
             existingAccount.setAccountHolderName(updatedAccount.getAccountHolderName());
         }
@@ -166,134 +263,10 @@ public class AccountService {
         if (updatedAccount.getStatus() != null) {
             existingAccount.setStatus(updatedAccount.getStatus());
         }
-
-        accountRepository.save(existingAccount);
     }
 
-    @Transactional
-    public void deleteAccount(String accountNumber) throws AccountNotFoundException {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
-
-        withdrawalRepository.deleteAll(withdrawalRepository.findByAccount(account));
-
-        accountRepository.delete(account);
-    }
-
-    public double checkBalance(String accountNumber) throws AccountNotFoundException {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Account not found."));
-        return account.getBalance();
-    }
-
-    @Transactional
-    public void transferByAccountNumbers(String fromAccountNumber, String toAccountNumber, double amount) throws AccountNotFoundException {
-        if (amount <= 0) {
-            throw new InvalidAmountException("Transfer amount must be a positive number.");
-        }
-        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Source account not found."));
-
-        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
-                .orElseThrow(() -> new AccountNotFoundException("Destination account not found."));
-
-        if (fromAccount.equals(toAccount)) {
-            throw new ValidationException("Cannot transfer to the same account.");
-        }
-
-        if (fromAccount.getBalance() - amount < 0) {
-            throw new InvalidAmountException("Insufficient funds.");
-        }
-
-        fromAccount.setBalance(fromAccount.getBalance() - amount);
-        toAccount.setBalance(toAccount.getBalance() + amount);
-
-        accountRepository.save(fromAccount);
-        accountRepository.save(toAccount);
-
-        // Record the transaction
-        Transaction transaction = new Transaction();
-        transaction.setFromAccountHolderName(fromAccount.getAccountHolderName());
-        transaction.setToAccountHolderName(toAccount.getAccountHolderName());
-        transaction.setTransactionType("Transfer");
-        transaction.setAmount(amount);
-        transactionRepository.save(transaction);
-    }
-
-    public Page<Transaction> searchTransactionsPaginated(
-            LocalDate fromDate,
-            LocalDate toDate,
-            Double minAmount,
-            Double maxAmount,
-            String transactionType,
-            int page,
-            int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("transactionDate").descending());
-
-        return transactionRepository.findTransactions(
-                fromDate, toDate, minAmount, maxAmount, transactionType, pageable);
-    }
-
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
-    }
-
-    public ResponseEntity<InputStreamResource> generateTransactionsPdfByHolder(String accountHolderName) throws DocumentException, IOException {
-
-        List<Transaction> fromTransactions = transactionRepository.findByFromAccountHolderName(accountHolderName);
-        List<Transaction> toTransactions = transactionRepository.findByToAccountHolderName(accountHolderName);
-
-        // Combine both lists
-        fromTransactions.addAll(toTransactions);
-
-        // Convert transactions to List<List<String>>
-        List<List<String>> rows = fromTransactions.stream()
-                .map(t -> List.of(
-                        t.getFromAccountHolderName(),
-                        t.getToAccountHolderName(),
-                        t.getTransactionType(),
-                        String.format("$%.2f", t.getAmount()),
-                        t.getTransactionDate().toString()
-                ))
-                .collect(Collectors.toList());
-
-        String[] headers = {"From", "To", "Type", "Amount", "Date"};
-        String title = "Transactions for " + accountHolderName;
-        String fileName = "transactions_" + accountHolderName + ".pdf";
-
-        InputStreamResource pdfStream = PdfUtils.generatePdf(title, headers, rows, fileName);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfStream);
-    }
-
-    public ResponseEntity<InputStreamResource> generateWithdrawalsPdf(int page, int size) throws DocumentException, IOException {
-        // Fetch only the withdrawals for the specified page and size
-        List<Withdrawal> withdrawals = withdrawalRepository.findAll(PageRequest.of(page, size)).getContent();
-        List<List<String>> rows = withdrawals.stream()
-                .map(w -> List.of(
-                        w.getAccount().getAccountHolderName(),
-                        String.format("$%.2f", w.getAmount()),
-                        w.getWithdrawDate().toString()
-                ))
-                .collect(Collectors.toList());
-
-        String[] headers = {"Account Holder Name", "Amount", "Date"};
-        String fileName = "withdrawals_report_page_" + page + ".pdf";
-
-        InputStreamResource pdf = PdfUtils.generatePdf("Withdrawals Report", headers, rows, fileName);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }
-
-    public ResponseEntity<InputStreamResource> generateTransactionsPdf(int page, int size) throws DocumentException, IOException {
-        // Fetch transactions for the specified page and size
-        List<Transaction> transactions = transactionRepository.findAll(PageRequest.of(page, size)).getContent();
-        List<List<String>> rows = transactions.stream()
+    private List<List<String>> mapTransactionsToRows(List<Transaction> transactions) {
+        return transactions.stream()
                 .map(t -> List.of(
                         t.getFromAccountHolderName() != null ? t.getFromAccountHolderName() : "N/A",
                         t.getToAccountHolderName(),
@@ -302,13 +275,14 @@ public class AccountService {
                         t.getTransactionDate().toString()
                 ))
                 .collect(Collectors.toList());
+    }
 
-        String[] headers = {"From Account Holder", "To Account Holder", "Type", "Amount", "Date"};
-        String fileName = "transactions_report_page_" + page + ".pdf";
+    private ResponseEntity<InputStreamResource> generatePdfResponse(String title, String[] headers, List<List<String>> rows, String fileName) throws DocumentException, IOException {
+        InputStreamResource pdfStream = PdfUtils.generatePdf(title, headers, rows, fileName);
 
-        InputStreamResource pdf = PdfUtils.generatePdf("Transactions Report", headers, rows, fileName);
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
+                .body(pdfStream);
     }
 }
