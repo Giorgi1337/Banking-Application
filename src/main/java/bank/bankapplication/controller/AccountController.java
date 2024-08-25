@@ -44,6 +44,7 @@ public class AccountController extends BaseController {
         Page<Account> accountPage = accountService.getAccountsPaginated(page, size, name);
         addCommonModelAttributes(model, accountPage, name);
         model.addAttribute("accountPage", accountPage);
+        model.addAttribute("totalAccounts", accountPage.getTotalElements());
         return "account/viewAccounts";
     }
 

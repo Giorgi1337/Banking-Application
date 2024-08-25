@@ -12,23 +12,31 @@
 <body>
 <div class="container mt-5">
     <h2 class="mb-4">All Accounts</h2>
+
+    <!-- Display Total Accounts Found -->
+    <div th:if="${totalAccounts != null}" class="alert alert-info">
+        <p><strong>Total Accounts Found:</strong> <span th:text="${totalAccounts}"></span></p>
+    </div>
+
     <div class="mb-3">
-        <a href="/create" class="btn btn-primary">Create New Account</a>
-        <a href="/withdrawals" class="btn btn-info">View Withdrawals</a>
-        <a href="/transactions" class="btn btn-secondary">View All Transactions</a>
+        <a href="/create" class="btn btn-primary"><i class="fa fa-plus"></i> Create New Account</a>
+        <a href="/withdrawals" class="btn btn-info"><i class="fa fa-money-bill"></i> View Withdrawals</a>
+        <a href="/transactions" class="btn btn-secondary"><i class="fa fa-exchange-alt"></i> View All Transactions</a>
     </div>
 
     <!-- Search Bar -->
-    <form th:action="@{/accounts}" method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" id="searchInput" name="name" class="form-control" placeholder="Search by Account Holder Name..." th:value="${name}">
-            <button class="btn btn-outline-primary" type="submit">Search</button>
-        </div>
-    </form>
+    <div class="search-bar">
+        <form th:action="@{/accounts}" method="get">
+            <div class="input-group">
+                <input type="text" id="searchInput" name="name" class="form-control" placeholder="Search by Account Holder Name..." th:value="${name}">
+                <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i> Search</button>
+            </div>
+        </form>
+    </div>
 
     <!-- Accounts Table -->
     <div class="scrollable-table-container mt-3">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-hover table-bordered">
             <thead>
             <tr>
                 <th>Account Number</th>
@@ -41,16 +49,15 @@
             <tr th:each="account : ${accountPage.content}">
                 <td th:text="${account.accountNumber}"></td>
                 <td>
-                    <a th:href="@{'/profile/' + ${account.accountNumber}}" th:text="${account.accountHolderName}"
-                       class="account-link"></a>
+                    <a th:href="@{'/profile/' + ${account.accountNumber}}" th:text="${account.accountHolderName}" class="account-link"></a>
                 </td>
                 <td th:text="${account.balance}"></td>
                 <td>
-                    <a th:href="@{'/update/' + ${account.accountNumber}}" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Account">Update</a>
-                    <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Account">Delete</a>
-                    <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Transfer Funds">Transfer</a>
-                    <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Deposit Funds">Deposit</a>
-                    <a th:href="@{'/withdraw/' + ${account.accountNumber}}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Withdraw Funds">Withdraw</a>
+                    <a th:href="@{'/update/' + ${account.accountNumber}}" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Account"><i class="fa fa-edit"></i> Update</a>
+                    <a th:href="@{'/delete/' + ${account.accountNumber}}" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Account"><i class="fa fa-trash"></i> Delete</a>
+                    <a th:href="@{'/transfer/' + ${account.accountNumber}}" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Transfer Funds"><i class="fa fa-exchange-alt"></i> Transfer</a>
+                    <a th:href="@{'/deposit/' + ${account.accountNumber}}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Deposit Funds"><i class="fa fa-arrow-down"></i> Deposit</a>
+                    <a th:href="@{'/withdraw/' + ${account.accountNumber}}" class="btn btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Withdraw Funds"><i class="fa fa-arrow-up"></i> Withdraw</a>
                 </td>
             </tr>
             </tbody>
@@ -80,6 +87,7 @@
 <!-- Bootstrap and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9z5dZ2b0E1TO6W2h5g5Rp4KmRSY+mbowylI3xQ+jSeEyz8S0eSy" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-OERcA2z8xG4N57ZKc0BeDohBReQJr2FnD6OHZ3uRzA1F3I10P3pPp1EzWoyz2NTs" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script src="/js/scripts.js"></script>
 </body>
 </html>

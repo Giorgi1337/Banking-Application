@@ -96,3 +96,52 @@ body {
 .account-link:hover {
     color: #00254d;
 }
+
+/* Additional custom styles */
+h2 {
+    font-weight: bold;
+    color: #ffffff; /* White color for title */
+}
+
+.search-bar {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.search-bar .form-control {
+    border-radius: 0;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.btn .fa {
+    margin-right: 5px;
+}
+
+/* Card style for accounts */
+.account-card {
+    border: 1px solid #e3e3e3;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s;
+}
+
+.account-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}

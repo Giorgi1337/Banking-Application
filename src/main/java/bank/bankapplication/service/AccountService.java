@@ -41,7 +41,7 @@ public class AccountService {
 
     public Page<Account> getAccountsPaginated(int page, int size, String name) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("accountHolderName").ascending());
-        return accountRepository.findByAccountHolderNameContaining(name, pageable);
+        return accountRepository.findByAccountHolderNameContainingIgnoreCase(name, pageable);
     }
 
     public void createAccount(String accountNumber, String accountHolderName, LocalDate dateOfBirth,
