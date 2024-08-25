@@ -36,6 +36,14 @@ public class AccountController extends BaseController {
         this.accountService = accountService;
     }
 
+    @GetMapping("/")
+    public String defaultHomePage(Model model,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  @RequestParam(defaultValue = "") String name) {
+        return viewAccountsPage(model, page, size, name);
+    }
+
     @GetMapping("/accounts")
     public String viewAccountsPage(Model model,
                                    @RequestParam(defaultValue = "0") int page,
