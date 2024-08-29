@@ -4,6 +4,8 @@ package bank.bankapplication.controller;
 import bank.bankapplication.model.Account;
 import bank.bankapplication.model.Transaction;
 import bank.bankapplication.service.AccountService;
+import bank.bankapplication.service.TransactionService;
+import bank.bankapplication.service.WithdrawalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.ui.Model;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class BaseController {
 
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
     protected void addCommonModelAttributes(Model model, Page<?> page, String name) {
         model.addAttribute("currentPage", page.getNumber());
@@ -52,12 +55,12 @@ public class BaseController {
     }
 
     protected String formatDate(LocalDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return dateTime.format(formatter);
     }
 
     protected List<Transaction> getRecentTransactions(String accountHolderName) {
-        return accountService.getTransactionsByAccountHolderName(accountHolderName)
+        return transactionService.getTransactionsByAccountHolderName(accountHolderName)
                 .stream()
                 .sorted((t1, t2) -> t2.getTransactionDate().compareTo(t1.getTransactionDate()))
                 .limit(3)
